@@ -1,0 +1,45 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+go.work.sum
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Sensitive config (contains passwords/secrets)
+etc/plating-api.yaml
+
+# Upload files
+uploads/
+
+# Log files
+*.log
+
+# Vendor (optional, uncomment if you vendor dependencies)
+# vendor/
+
+# Temporary files
+tmp/
+
+# Claude Code
+.claude/

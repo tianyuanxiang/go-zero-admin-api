@@ -1,0 +1,41 @@
+Name: plating-platform
+Host: 0.0.0.0
+Port: 8888
+Mode: dev
+Timeout: 30000   # HTTP request timeout (ms)
+
+# JWT config
+Auth:
+  AccessSecret: "your-access-secret-key-change-in-production"
+  AccessExpire: 1200      # Access token expiration (minutes)
+  RefreshExpire: 10080   # Refresh token expiration (minutes)
+
+# MySQL config
+DB:
+  DataSource: "root:your_password@tcp(127.0.0.1:3306)/plating?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s"
+
+# Redis config
+CacheRedis:
+  - Host: "127.0.0.1:6379"
+    Pass: "your_redis_password"
+    Type: node
+
+BizRedis:
+  Host: 127.0.0.1:6379
+  Username: default
+  Pass: your_redis_password
+  DB: 10
+
+# Casbin model config path
+CasbinModelPath: "etc/rbac_model.conf"
+
+# File upload path
+UploadPath: "uploads"
+
+# Log config
+Log:
+  Mode: console
+  Level: debug
+  Encoding: plain
+  WithCaller: true
+  StackCooldownMillis: 100

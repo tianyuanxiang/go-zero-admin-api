@@ -1,0 +1,25 @@
+syntax = "v1"
+
+info (
+	title:   "槽液智能分析平台 API"
+	desc:    "槽液智能分析平台后端接口定义"
+	author:  "respect-team"
+	version: "v1.0.0"
+)
+
+// 引入基础字段
+import "desc/base.api"
+// 引入认证相关接口
+import "desc/auth.api"
+// 引入系统管理相关接口
+import "desc/system/user.api"
+import "desc/system/role.api"
+import "desc/system/menu.api"
+import "desc/system/api.api"
+import "desc/system/dict.api"
+import "desc/system/log.api"
+import "desc/system/file.api"
+// 引入槽液业务相关接口
+import "desc/plate/tank.api"
+import "desc/plate/event.api"
+import "desc/plate/state.api"

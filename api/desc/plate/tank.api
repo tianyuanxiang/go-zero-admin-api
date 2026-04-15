@@ -1,0 +1,103 @@
+syntax = "v1"
+
+// 创建槽体配置请求体
+type CreateTankConfigReq {
+	TankId       string  `json:"tankId"`              // 槽体唯一标识（如：TANK-001）
+	TankName     string  `json:"tankName"`            // 槽体名称
+	VolumeLiters float64 `json:"volumeLiters"`        // 槽液工作体积（单位：升）
+	DensityGPerL float64 `json:"densityGPerL"`        // 槽液密度（单位：g/L）
+	DCrO3GPerAh  float64 `json:"dCrO3GPerAh"`         // CrO3电化学消耗系数（单位：g/Ah）
+	DCr3GPerAh   float64 `json:"dCr3GPerAh"`          // Cr3+电化学生成系数（单位：g/Ah）
+	CarryoverA   float64 `json:"carryoverA"`          // 平板件带液系数（单位：g/dm²，参考值1.0）
+	CarryoverB   float64 `json:"carryoverB"`          // 普通件带液系数（单位：g/dm²，参考值2.0）
+	CarryoverC   float64 `json:"carryoverC"`          // 复杂件带液系数（单位：g/dm²，参考值6.5）
+	IsActive     int     `json:"isActive"`            // 启用状态：1启用 0停用
+	Remark       string  `json:"remark,optional"`     // 备注
+}
+
+// 更新槽体配置请求体
+type UpdateTankConfigReq {
+	TankId       string  `path:"tankId"`              // 槽体ID（路径参数）
+	TankName     string  `json:"tankName"`            // 槽体名称
+	VolumeLiters float64 `json:"volumeLiters"`        // 槽液工作体积（升）
+	DensityGPerL float64 `json:"densityGPerL"`        // 槽液密度（g/L）
+	DCrO3GPerAh  float64 `json:"dCrO3GPerAh"`         // CrO3消耗系数（g/Ah）
+	DCr3GPerAh   float64 `json:"dCr3GPerAh"`          // Cr3+生成系数（g/Ah）
+	CarryoverA   float64 `json:"carryoverA"`          // 平板件带液系数（g/dm²）
+	CarryoverB   float64 `json:"carryoverB"`          // 普通件带液系数（g/dm²）
+	CarryoverC   float64 `json:"carryoverC"`          // 复杂件带液系数（g/dm²）
+	IsActive     int     `json:"isActive"`            // 启用状态
+	Remark       string  `json:"remark,optional"`     // 备注
+}
+
+// 槽体配置响应体
+type TankConfigItem {
+	TankId       string  `json:"tankId"`       // 槽体ID
+	TankName     string  `json:"tankName"`     // 槽体名称
+	VolumeLiters float64 `json:"volumeLiters"` // 槽液体积（升）
+	DensityGPerL float64 `json:"densityGPerL"` // 槽液密度（g/L）
+	DCrO3GPerAh  float64 `json:"dCrO3GPerAh"`  // CrO3消耗系数（g/Ah）
+	DCr3GPerAh   float64 `json:"dCr3GPerAh"`   // Cr3+生成系数（g/Ah）
+	CarryoverA   float64 `json:"carryoverA"`   // 平板件带液系数（g/dm²）
+	CarryoverB   float64 `json:"carryoverB"`   // 普通件带液系数（g/dm²）
+	CarryoverC   float64 `json:"carryoverC"`   // 复杂件带液系数（g/dm²）
+	IsActive     int     `json:"isActive"`     // 启用状态
+	Remark       string  `json:"remark"`       // 备注
+	CreatedAt    string  `json:"createdAt"`    // 创建时间
+	UpdatedAt    string  `json:"updatedAt"`    // 更新时间
+}
+
+// 槽体配置列表查询请求
+type ListTankConfigReq {
+	Page     int    `form:"page,default=1"`      // 页码
+	PageSize int    `form:"pageSize,default=20"` // 每页数量
+	Keyword  string `form:"keyword,optional"`    // 槽体名称/ID关键词
+	IsActive int    `form:"isActive,optional"`   // 启用状态过滤
+}
+
+// 槽体配置列表响应
+type ListTankConfigResp {
+	Total int64            `json:"total"` // 总数
+	List  []TankConfigItem `json:"list"`  // 槽体配置列表
+}
+
+// 初始化模型状态请求体
+type InitModelStateReq {
+	TankId     string  `json:"tankId"`              // 槽体ID
+	CrO3GPerL  float64 `json:"crO3GPerL"`           // 初始CrO3浓度（g/L）
+	Cr3GPerL   float64 `json:"cr3GPerL"`            // 初始Cr3+浓度（g/L）
+	TankVolume float64 `json:"tankVolume,optional"` // 初始槽液体积（升），为空则使用槽体配置值
+	CalcTime   string  `json:"calcTime,optional"`   // 初始化时间（格式：2006-01-02 15:04:05），为空则使用当前时间
+	Remark     string  `json:"remark,optional"`     // 备注
+}
+
+@server (
+	prefix: /api/plating
+	group: plate/tank
+	middleware: AuthMiddleware,CasbinMiddleware
+)
+service plating-api {
+	// 创建槽体配置
+	@handler CreateTankConfigHandler
+	post /tank (CreateTankConfigReq)
+
+	// 更新槽体配置
+	@handler UpdateTankConfigHandler
+	put /tank/:tankId (UpdateTankConfigReq)
+
+	// 删除槽体配置
+	@handler DeleteTankConfigHandler
+	delete /tank/:tankId
+
+	// 查询槽体配置详情
+	@handler GetTankConfigHandler
+	get /tank/:tankId returns (TankConfigItem)
+
+	// 分页查询槽体配置列表
+	@handler ListTankConfigHandler
+	get /tank (ListTankConfigReq) returns (ListTankConfigResp)
+
+	// 初始化槽体模型状态（首次使用前必须执行）
+	@handler InitModelStateHandler
+	post /tank/init-state (InitModelStateReq)
+}

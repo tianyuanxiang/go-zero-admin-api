@@ -1,0 +1,72 @@
+syntax = "v1"
+
+// 模型状态响应体（单条状态记录）
+type ModelStateResp {
+	Id         int64   `json:"id"`         // 状态记录ID
+	TankId     string  `json:"tankId"`     // 槽体ID
+	CalcTime   string  `json:"calcTime"`   // 计算时刻
+	CrO3GPerL  float64 `json:"crO3GPerL"`  // CrO3浓度（g/L）
+	Cr3GPerL   float64 `json:"cr3GPerL"`   // Cr3+浓度（g/L）
+	TankVolume float64 `json:"tankVolume"` // 槽液体积（升）
+	Source     string  `json:"source"`     // 数据来源：init初始化 production生产 dosing加药 water补水 lab化验校正
+	Remark     string  `json:"remark"`     // 备注
+	CreatedAt  string  `json:"createdAt"`  // 记录创建时间
+}
+
+// 最新状态查询请求
+type GetLatestStateReq {
+	TankId string `path:"tankId"` // 槽体ID
+}
+
+// 状态趋势查询请求（用于绘制历史趋势图）
+type GetStateTrendReq {
+	TankId    string `form:"tankId"`             // 槽体ID（必填）
+	StartTime string `form:"startTime,optional"` // 开始时间（格式：2006-01-02 15:04:05）
+	EndTime   string `form:"endTime,optional"`   // 结束时间
+	Limit     int    `form:"limit,default=200"`  // 最多返回的数据点数量（默认200）
+}
+
+// 状态趋势响应（按时间升序排列）
+type StateTrendResp {
+	TankId string           `json:"tankId"` // 槽体ID
+	List   []ModelStateResp `json:"list"`   // 状态时间序列
+}
+
+// 化验校正请求体（以实验室化验结果强制修正模型状态）
+type OverrideStateReq {
+	TankId    string  `json:"tankId"`            // 槽体ID
+	CrO3GPerL float64 `json:"crO3GPerL"`         // 化验CrO3浓度（g/L）
+	Cr3GPerL  float64 `json:"cr3GPerL"`          // 化验Cr3+浓度（g/L）
+	CalcTime  string  `json:"calcTime,optional"` // 化验时间，为空则使用当前时间
+	Remark    string  `json:"remark,optional"`   // 化验备注（如：批次号、化验员）
+}
+
+// 导出状态报告请求
+type ExportStateReportReq {
+	TankId    string `form:"tankId"`             // 槽体ID
+	StartTime string `form:"startTime,optional"` // 开始时间
+	EndTime   string `form:"endTime,optional"`   // 结束时间
+}
+
+@server (
+	prefix: /api/plating
+	group: plate/state
+	middleware: AuthMiddleware,CasbinMiddleware
+)
+service plating-api {
+	// 获取槽体最新模型状态
+	@handler GetLatestStateHandler
+	get /state/:tankId returns (ModelStateResp)
+
+	// 查询状态历史趋势（用于绘图）
+	@handler GetStateTrendHandler
+	get /state/trend (GetStateTrendReq) returns (StateTrendResp)
+
+	// 化验校正：以实验室结果强制修正模型当前状态
+	@handler OverrideStateHandler
+	post /state/override (OverrideStateReq)
+
+	// 导出状态报告（返回Excel文件）
+	@handler ExportStateReportHandler
+	get /state/export (ExportStateReportReq)
+}
