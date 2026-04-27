@@ -1,4 +1,4 @@
-# Plating Platform
+# go-zero-admin Platform
 
 电镀管理平台后端 API 服务，基于 Go 语言 + go-zero 微服务框架构建。
 
@@ -15,16 +15,16 @@
 ## 项目结构
 
 ```
-plating/
+go-zero-admin/
 ├── api/                    # API 定义文件
 │   ├── desc/               # 分模块 API 描述
 │   │   ├── auth.api        # 认证模块
 │   │   ├── plate/          # 电镀业务模块
 │   │   └── system/         # 系统管理模块
-│   └── plating.api         # API 主入口
+│   └── go-zero-admin.api         # API 主入口
 ├── etc/                    # 配置文件
-│   ├── plating-api.yaml    # 服务配置 (gitignore, 需自行创建)
-│   ├── plating-api.yaml.example  # 配置示例
+│   ├── go-zero-admin-api.yaml    # 服务配置 (gitignore, 需自行创建)
+│   ├── go-zero-admin-api.yaml.example  # 配置示例
 │   └── rbac_model.conf     # Casbin RBAC 模型
 ├── internal/               # 私有业务代码
 │   ├── common/             # 公共定义
@@ -50,9 +50,9 @@ plating/
 │   └── xerr/               # 自定义错误
 ├── schema/                 # 数据库脚本
 │   ├── init.sql            # 初始化数据
-│   └── plating.sql         # 表结构
+│   └── go-zero-admin.sql         # 表结构
 ├── docx/                   # 项目文档
-├── plating.go              # 程序入口
+├── go-zero-admin.go              # 程序入口
 ├── go.mod
 └── go.sum
 ```

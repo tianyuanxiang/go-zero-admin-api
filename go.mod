@@ -1,4 +1,4 @@
-module plating
+module go-zero-admin
 
 go 1.24.0
 

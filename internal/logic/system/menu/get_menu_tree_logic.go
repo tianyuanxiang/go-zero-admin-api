@@ -6,8 +6,8 @@ package menu
 import (
 	"context"
 
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +27,6 @@ func NewGetMenuTreeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetMe
 }
 
 func (l *GetMenuTreeLogic) GetMenuTree() (resp *types.MenuTreeResp, err error) {
-	// todo: add your logic here and delete this line
 
 	return
 }

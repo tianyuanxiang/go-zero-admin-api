@@ -16,7 +16,7 @@ type (
 		sysUserModel
 		List(ctx context.Context, page, pageSize int, keyword string, status int) ([]*SysUser, int64, error)
 		UpdatePassword(ctx context.Context, id int64, password string) error
-		InsertUser(ctx context.Context, tx *gorm.DB, user *SysUser) (int64, error)
+		InsertUserTrans(ctx context.Context, tx *gorm.DB, user *SysUser) (int64, error)
 	}
 
 	customSysUserModel struct {
@@ -61,7 +61,7 @@ func (m *customSysUserModel) FindOneByUsername(ctx context.Context, username str
 }
 
 // 插入用户返回id
-func (m *customSysUserModel) InsertUser(ctx context.Context, tx *gorm.DB, user *SysUser) (int64, error) {
+func (m *customSysUserModel) InsertUserTrans(ctx context.Context, tx *gorm.DB, user *SysUser) (int64, error) {
 	result := tx.WithContext(ctx).Table("sys_user").Create(&user)
 	return result.RowsAffected, result.Error
 }

@@ -4,11 +4,12 @@
 package api
 
 import (
+	"go-zero-admin/pkg/response"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
-	"plating/internal/logic/system/api"
-	"plating/internal/svc"
+	"go-zero-admin/internal/logic/system/api"
+	"go-zero-admin/internal/svc"
 )
 
 func ListAllApiHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -16,9 +17,14 @@ func ListAllApiHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := api.NewListAllApiLogic(r.Context(), svcCtx)
 		resp, err := l.ListAllApi()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			if codeErr, ok := err.(*xerr.CodeError); ok {
+				response.Fail(w, r, codeErr.Code, codeErr.Msg)
+				return
+			}
+			response.FailInternal(w, r)
+			return
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			response.OkWithData(w, r, resp)
 		}
 	}
 }

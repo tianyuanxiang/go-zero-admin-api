@@ -16,9 +16,9 @@ func ClearOperLogHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := log.NewClearOperLogLogic(r.Context(), svcCtx)
 		err := l.ClearOperLog()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 		} else {
-			httpx.Ok(w)
+			response.OK(w, r)
 		}
 	}
 }

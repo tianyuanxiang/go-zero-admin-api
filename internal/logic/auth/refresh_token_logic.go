@@ -5,11 +5,11 @@ package auth
 
 import (
 	"context"
-	"plating/pkg/jwtx"
-	"plating/pkg/xerr"
+	"go-zero-admin/pkg/jwtx"
+	"go-zero-admin/pkg/xerr"
 
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

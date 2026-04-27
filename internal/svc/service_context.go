@@ -6,16 +6,16 @@ package svc
 import (
 	"context"
 	"fmt"
+	"go-zero-admin/internal/config"
+	"go-zero-admin/internal/middleware"
+	"go-zero-admin/pkg/casbin"
+	"go-zero-admin/pkg/orm"
+	pkgsqlx "go-zero-admin/pkg/sqlx"
 	"net/http"
-	"plating/internal/config"
-	"plating/internal/middleware"
-	"plating/pkg/casbin"
-	"plating/pkg/orm"
-	pkgsqlx "plating/pkg/sqlx"
 	"time"
 
-	platemodel "plating/internal/model/plate"
-	systemmodel "plating/internal/model/system"
+	platemodel "go-zero-admin/internal/model/plate"
+	systemmodel "go-zero-admin/internal/model/system"
 
 	casbinv2 "github.com/casbin/casbin/v2"
 	"github.com/redis/go-redis/v9"

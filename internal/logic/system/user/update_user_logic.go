@@ -5,13 +5,13 @@ package user
 
 import (
 	"context"
-	"plating/pkg/xerr"
+	"go-zero-admin/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	systemmodel "plating/internal/model/system"
-	"plating/internal/svc"
-	"plating/internal/types"
+	systemmodel "go-zero-admin/internal/model/system"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 )
 
 type UpdateUserLogic struct {

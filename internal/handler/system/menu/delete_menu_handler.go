@@ -5,20 +5,34 @@ package menu
 
 import (
 	"net/http"
+	"plating/pkg/response"
+	"plating/pkg/xerr"
+	"strconv"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"plating/internal/logic/system/menu"
 	"plating/internal/svc"
 )
 
 func DeleteMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := r.PathValue("id")
+		menuId, err := strconv.ParseInt(idStr, 10, 64)
+
+		if err != nil || menuId <= 0 {
+			response.FailWithMsg(w, r, "菜单ID格式错误")
+			return
+		}
 		l := menu.NewDeleteMenuLogic(r.Context(), svcCtx)
-		err := l.DeleteMenu()
+		err = l.DeleteMenu(menuId)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			if codeErr, ok := err.(*xerr.CodeError); ok {
+				response.Fail(w, r, codeErr.Code, codeErr.Msg)
+				return
+			}
+			response.FailInternal(w, r)
+			return
 		} else {
-			httpx.Ok(w)
+			response.OK(w, r)
 		}
 	}
 }

@@ -1,38 +1,30 @@
 // Code scaffolded by goctl. Safe to edit.
 // goctl 1.9.2
 
-package menu
+package role
 
 import (
 	"net/http"
 	"plating/pkg/response"
 	"plating/pkg/xerr"
-	"strconv"
 
-	"plating/internal/logic/system/menu"
+	"plating/internal/logic/system/role"
 	"plating/internal/svc"
 	"plating/internal/types"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func UpdateMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func UpdateRolePermissionsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idStr := r.PathValue("id")
-		menuId, err := strconv.ParseInt(idStr, 10, 64)
-		if err != nil || menuId <= 0 {
-			response.FailWithMsg(w, r, "菜单ID格式错误")
-			return
-		}
-		var req types.UpdateMenuReq
+		var req types.UpdateRolePermissionsReq
 		if err := httpx.Parse(r, &req); err != nil {
 			response.FailWithMsg(w, r, err.Error())
 			return
 		}
 
-		req.Id = menuId
-		l := menu.NewUpdateMenuLogic(r.Context(), svcCtx)
-		err = l.UpdateMenu(&req)
+		l := role.NewUpdateRolePermissionsLogic(r.Context(), svcCtx)
+		err := l.UpdateRolePermissions(&req)
 		if err != nil {
 			if codeErr, ok := err.(*xerr.CodeError); ok {
 				response.Fail(w, r, codeErr.Code, codeErr.Msg)

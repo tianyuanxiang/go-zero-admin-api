@@ -16,9 +16,9 @@ func ClearLoginLogHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := log.NewClearLoginLogLogic(r.Context(), svcCtx)
 		err := l.ClearLoginLog()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 		} else {
-			httpx.Ok(w)
+			response.OK(w, r)
 		}
 	}
 }

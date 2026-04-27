@@ -6,11 +6,11 @@ package auth
 import (
 	"context"
 	"fmt"
-	"plating/internal/middleware"
-	"plating/pkg/jwtx"
+	"go-zero-admin/internal/middleware"
+	"go-zero-admin/pkg/jwtx"
 	"time"
 
-	"plating/internal/svc"
+	"go-zero-admin/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

@@ -5,11 +5,15 @@ package role
 
 import (
 	"context"
+	systemmodel "go-zero-admin/internal/model/system"
+	casbinpkg "go-zero-admin/pkg/casbin"
+	"go-zero-admin/pkg/xerr"
 
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type UpdateRoleLogic struct {
@@ -27,7 +31,63 @@ func NewUpdateRoleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Update
 }
 
 func (l *UpdateRoleLogic) UpdateRole(req *types.UpdateRoleReq) error {
-	// todo: add your logic here and delete this line
+	// 检查角色是否存在
+	existRole, err := l.svcCtx.SysRoleModel.FindOne(l.ctx, req.Id)
+	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return xerr.NewCodeError(xerr.ErrRoleNotFound)
+		}
+		l.Errorf("查询角色[%d]失败：%v", req.Id, err)
+		return xerr.NewCodeError(xerr.ErrInternal)
+	}
 
-	return nil
+	// 如果修改了角色编码，检查新编码是否与其他角色冲突
+	if existRole.Code != req.RoleCode {
+		conflictRole, cErr := l.svcCtx.SysRoleModel.FindOneByCode(l.ctx, req.RoleCode)
+		if cErr != nil && cErr != sqlx.ErrNotFound {
+			l.Errorf("检查角色编码冲突失败：%v", cErr)
+			return xerr.NewCodeError(xerr.ErrInternal)
+		}
+		if conflictRole != nil && conflictRole.Id != req.Id {
+			return xerr.NewCodeError(xerr.ErrRoleCodeDuplicate)
+		}
+	}
+
+	// 更新角色基本信息
+	if err := l.svcCtx.SysRoleModel.Update(l.ctx, &systemmodel.SysRole{
+		Id:     req.Id,
+		Name:   req.RoleName,
+		Code:   req.RoleCode,
+		Remark: req.Remark,
+	}); err != nil {
+		l.Logger.Errorf("更新角色基本信息失败：%v", err)
+		return xerr.NewCodeError(xerr.ErrInternal)
+	}
+
+	// 如果编码从 operator 改成 op_admin，Casbin 里存的还是
+	// operator，策略就失效了。所以如果允许修改角色编码，需要在事务后面加 Casbin 迁移
+	if existRole.Code != req.RoleCode {
+		oldPolicies, err := casbinpkg.GetRolePolicies(l.svcCtx.Enforcer, existRole.Code)
+		if err != nil {
+			l.Errorf("查询角色旧编码[%s]Casbin策略失败：%v", existRole.Code, err)
+		} else if len(oldPolicies) > 0 {
+			// 提取 [path, method] 部分
+			rules := make([][]string, 0, len(oldPolicies))
+			for _, p := range oldPolicies {
+				if len(p) >= 3 {
+					rules = append(rules, []string{p[1], p[2]})
+				}
+			}
+			// 删除旧编码策略
+			if err := casbinpkg.RemoveAllPoliciesForRole(l.svcCtx.Enforcer, existRole.Code); err != nil {
+				l.Errorf("清除角色旧编码[%s]Casbin策略失败：%v", existRole.Code, err)
+			}
+			// 写入新编码策略
+			if err := casbinpkg.AddRolePolicies(l.svcCtx.Enforcer, req.RoleCode, rules); err != nil {
+				l.Errorf("迁移casbin策略到新角色编码[%s]失败: %v", req.RoleCode, err)
+			}
+		}
+	}
+
+	return err
 }

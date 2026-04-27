@@ -5,11 +5,12 @@ package menu
 
 import (
 	"context"
-
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	systemmodel "go-zero-admin/internal/model/system"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 )
 
 type CreateMenuLogic struct {
@@ -27,7 +28,21 @@ func NewCreateMenuLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Create
 }
 
 func (l *CreateMenuLogic) CreateMenu(req *types.CreateMenuReq) error {
-	// todo: add your logic here and delete this line
-
+	_, err := l.svcCtx.SysMenuModel.Insert(l.ctx, &systemmodel.SysMenu{
+		ParentId:   req.ParentId,
+		Name:       req.MenuName,
+		MenuType:   req.MenuType,
+		MenuPath:   req.Path,
+		Component:  req.Component,
+		Icon:       req.Icon,
+		Sort:       int64(req.Sort),
+		Permission: req.Perms,
+		Status:     int64(req.Status),
+		Remark:     req.Remark,
+	})
+	if err != nil {
+		l.Errorf("插入菜单记录失败：%v", err)
+		return xerr.NewCodeError(xerr.ErrInternal)
+	}
 	return nil
 }

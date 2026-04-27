@@ -5,12 +5,12 @@ package auth
 
 import (
 	"context"
-	"plating/internal/middleware"
-	"plating/pkg/encrypt"
-	"plating/pkg/xerr"
+	"go-zero-admin/internal/middleware"
+	"go-zero-admin/pkg/encrypt"
+	"go-zero-admin/pkg/xerr"
 
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -80,6 +80,6 @@ func (l *ChangePasswordLogic) ChangePassword(req *types.ChangePasswordReq) error
 		l.Logger.Errorf("更新用户[%d]密码失败：%v", userId, err)
 		return xerr.NewCodeError(xerr.ErrInternal)
 	}
-	
+
 	return nil
 }

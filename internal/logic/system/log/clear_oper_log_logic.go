@@ -7,7 +7,7 @@ import (
 	"context"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"plating/internal/svc"
+	"go-zero-admin/internal/svc"
 )
 
 type ClearOperLogLogic struct {

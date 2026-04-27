@@ -16,16 +16,16 @@ func UpdateDictTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UpdateDictTypeReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 			return
 		}
 
 		l := dict.NewUpdateDictTypeLogic(r.Context(), svcCtx)
 		err := l.UpdateDictType(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 		} else {
-			httpx.Ok(w)
+			response.OK(w, r)
 		}
 	}
 }

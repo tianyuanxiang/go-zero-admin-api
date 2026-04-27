@@ -16,16 +16,16 @@ func CreateDictDataHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.CreateDictDataReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 			return
 		}
 
 		l := dict.NewCreateDictDataLogic(r.Context(), svcCtx)
 		err := l.CreateDictData(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 		} else {
-			httpx.Ok(w)
+			response.OK(w, r)
 		}
 	}
 }

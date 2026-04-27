@@ -27,14 +27,14 @@ func UpdateUserHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		var req types.UpdateUserReq
 		if err := httpx.Parse(r, &req); err != nil {
 			response.FailWithMsg(w, r, err.Error())
-			// httpx.ErrorCtx(r.Context(), w, err)
+			// response.FailWithMsg(w, r, err.Error())
 			return
 		}
 		req.Id = userId
 		l := user.NewUpdateUserLogic(r.Context(), svcCtx)
 		err = l.UpdateUser(&req)
 		if err != nil {
-			// httpx.ErrorCtx(r.Context(), w, err)
+			// response.FailWithMsg(w, r, err.Error())
 			if codeErr, ok := err.(*xerr.CodeError); ok {
 				response.Fail(w, r, codeErr.Code, codeErr.Msg)
 				return

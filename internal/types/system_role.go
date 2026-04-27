@@ -4,11 +4,16 @@
 package types
 
 type CreateRoleReq struct {
-	RoleName string  `json:"roleName"`         // 角色名称
-	RoleCode string  `json:"roleCode"`         // 角色编码，唯一（如：admin, operator）
+	RoleName string  `json:"roleName"` // 角色名称
+	RoleCode string  `json:"roleCode"` // 角色编码，唯一（如：admin, operator）
+	Sort     int64   `json:"sort"`
 	Remark   string  `json:"remark,optional"`  // 备注
 	MenuIds  []int64 `json:"menuIds,optional"` // 关联菜单ID列表
 	ApiIds   []int64 `json:"apiIds,optional"`  // 关联接口ID列表
+}
+
+type ListAllResp struct {
+	ListAll []RoleOption `list`
 }
 
 type ListRoleReq struct {
@@ -23,17 +28,25 @@ type ListRoleResp struct {
 }
 
 type RoleItem struct {
-	Id        int64  `json:"id"`        // 角色ID
-	RoleName  string `json:"roleName"`  // 角色名称
-	RoleCode  string `json:"roleCode"`  // 角色编码
+	Id        int64  `json:"id"`       // 角色ID
+	RoleName  string `json:"roleName"` // 角色名称
+	RoleCode  string `json:"roleCode"` // 角色编码
+	Status    int    `json:"status"`
+	Sort      int    `json:sort`
 	Remark    string `json:"remark"`    // 备注
 	CreatedAt string `json:"createdAt"` // 创建时间
 }
 
+type UpdateRolePermissionsReq struct {
+	Id      int64   `path:"id"`               // 角色ID
+	MenuIds []int64 `json:"menuIds,optional"` // 关联菜单ID列表
+	ApiIds  []int64 `json:"apiIds,optional"`  // 关联接口ID列表
+}
+
 type UpdateRoleReq struct {
-	Id       int64   `path:"id"`               // 角色ID
-	RoleName string  `json:"roleName"`         // 角色名称
-	Remark   string  `json:"remark,optional"`  // 备注
-	MenuIds  []int64 `json:"menuIds,optional"` // 关联菜单ID列表
-	ApiIds   []int64 `json:"apiIds,optional"`  // 关联接口ID列表
+	Id       int64  `path:"id"` // 角色ID
+	RoleCode string `json:"roleCode"`
+	RoleName string `json:"roleName"` // 角色名称
+	Sort     int64  `json:"sort"`
+	Remark   string `json:"remark,optional"` // 备注
 }

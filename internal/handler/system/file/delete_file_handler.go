@@ -16,9 +16,9 @@ func DeleteFileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := file.NewDeleteFileLogic(r.Context(), svcCtx)
 		err := l.DeleteFile()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 		} else {
-			httpx.Ok(w)
+			response.OK(w, r)
 		}
 	}
 }

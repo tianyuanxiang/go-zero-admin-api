@@ -5,9 +5,10 @@ package api
 
 import (
 	"context"
+	"go-zero-admin/pkg/xerr"
 
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,8 +27,23 @@ func NewListAllApiLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListAl
 	}
 }
 
-func (l *ListAllApiLogic) ListAllApi() (resp *types.ListApiResp, err error) {
-	// todo: add your logic here and delete this line
+func (l *ListAllApiLogic) ListAllApi() (resp *types.ListAllApiResp, err error) {
+	apis, err := l.svcCtx.SysApiModel.ListByIds(l.ctx, nil)
+	if err != nil {
+		l.Errorf("查询全部角色失败: %v\n", err)
+		return nil, xerr.NewCodeError(xerr.ErrInternal)
+	}
 
-	return
+	list := make([]types.ApiOption, 0, len(apis))
+	for _, api := range apis {
+		list = append(list, types.ApiOption{
+			Id:      api.Id,
+			ApiName: api.ApiName,
+			ApiPath: api.ApiPath,
+			Remark:  api.Description,
+		})
+	}
+	return &types.ListAllApiResp{
+		ListAll: list,
+	}, err
 }

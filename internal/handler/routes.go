@@ -6,18 +6,15 @@ package handler
 import (
 	"net/http"
 
-	auth "plating/internal/handler/auth"
-	plateevent "plating/internal/handler/plate/event"
-	platestate "plating/internal/handler/plate/state"
-	platetank "plating/internal/handler/plate/tank"
-	systemapi "plating/internal/handler/system/api"
-	systemdict "plating/internal/handler/system/dict"
-	systemfile "plating/internal/handler/system/file"
-	systemlog "plating/internal/handler/system/log"
-	systemmenu "plating/internal/handler/system/menu"
-	systemrole "plating/internal/handler/system/role"
-	systemuser "plating/internal/handler/system/user"
-	"plating/internal/svc"
+	auth "go-zero-admin/internal/handler/auth"
+	systemapi "go-zero-admin/internal/handler/system/api"
+	systemdict "go-zero-admin/internal/handler/system/dict"
+	systemfile "go-zero-admin/internal/handler/system/file"
+	systemlog "go-zero-admin/internal/handler/system/log"
+	systemmenu "go-zero-admin/internal/handler/system/menu"
+	systemrole "go-zero-admin/internal/handler/system/role"
+	systemuser "go-zero-admin/internal/handler/system/user"
+	"go-zero-admin/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )
@@ -61,133 +58,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			}...,
 		),
 		rest.WithPrefix("/api/auth"),
-	)
-
-	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.CasbinMiddleware},
-			[]rest.Route{
-				{
-					Method:  http.MethodPost,
-					Path:    "/event/dosing",
-					Handler: plateevent.CreateDosingEventHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/event/dosing",
-					Handler: plateevent.ListDosingEventHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodDelete,
-					Path:    "/event/dosing/:id",
-					Handler: plateevent.DeleteDosingEventHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPost,
-					Path:    "/event/production",
-					Handler: plateevent.CreateProductionEventHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/event/production",
-					Handler: plateevent.ListProductionEventHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodDelete,
-					Path:    "/event/production/:id",
-					Handler: plateevent.DeleteProductionEventHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPost,
-					Path:    "/event/trigger-calc",
-					Handler: plateevent.TriggerCalcHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPost,
-					Path:    "/event/water",
-					Handler: plateevent.CreateWaterEventHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/event/water",
-					Handler: plateevent.ListWaterEventHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodDelete,
-					Path:    "/event/water/:id",
-					Handler: plateevent.DeleteWaterEventHandler(serverCtx),
-				},
-			}...,
-		),
-		rest.WithPrefix("/api/plating"),
-	)
-
-	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.CasbinMiddleware},
-			[]rest.Route{
-				{
-					Method:  http.MethodGet,
-					Path:    "/state/:tankId",
-					Handler: platestate.GetLatestStateHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/state/export",
-					Handler: platestate.ExportStateReportHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPost,
-					Path:    "/state/override",
-					Handler: platestate.OverrideStateHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/state/trend",
-					Handler: platestate.GetStateTrendHandler(serverCtx),
-				},
-			}...,
-		),
-		rest.WithPrefix("/api/plating"),
-	)
-
-	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.CasbinMiddleware},
-			[]rest.Route{
-				{
-					Method:  http.MethodPost,
-					Path:    "/tank",
-					Handler: platetank.CreateTankConfigHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/tank",
-					Handler: platetank.ListTankConfigHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPut,
-					Path:    "/tank/:tankId",
-					Handler: platetank.UpdateTankConfigHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodDelete,
-					Path:    "/tank/:tankId",
-					Handler: platetank.DeleteTankConfigHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/tank/:tankId",
-					Handler: platetank.GetTankConfigHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPost,
-					Path:    "/tank/init-state",
-					Handler: platetank.InitModelStateHandler(serverCtx),
-				},
-			}...,
-		),
-		rest.WithPrefix("/api/plating"),
 	)
 
 	server.AddRoutes(
@@ -388,6 +258,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/role/:id",
 					Handler: systemrole.GetRoleHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/role/:id/permissions",
+					Handler: systemrole.UpdateRolePermissionsHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,

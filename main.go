@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"time"
 
-	"plating/internal/config"
-	"plating/internal/handler"
-	"plating/internal/svc"
+	"go-zero-admin/internal/config"
+	"go-zero-admin/internal/handler"
+	"go-zero-admin/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -18,7 +18,7 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/plating-api.yaml", "the config file")
+var configFile = flag.String("f", "etc/config.yaml", "the config file")
 
 func main() {
 	flag.Parse()

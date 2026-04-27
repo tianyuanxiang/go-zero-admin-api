@@ -4,11 +4,12 @@
 package role
 
 import (
+	"go-zero-admin/pkg/response"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
-	"plating/internal/logic/system/role"
-	"plating/internal/svc"
+	"go-zero-admin/internal/logic/system/role"
+	"go-zero-admin/internal/svc"
 )
 
 func ListAllRoleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -16,9 +17,14 @@ func ListAllRoleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := role.NewListAllRoleLogic(r.Context(), svcCtx)
 		resp, err := l.ListAllRole()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			if codeErr, ok := err.(*xerr.CodeError); ok {
+				response.Fail(w, r, codeErr.Code, codeErr.Msg)
+				return
+			}
+			response.FailInternal(w, r)
+			return
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			response.OkWithData(w, r, resp)
 		}
 	}
 }

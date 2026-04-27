@@ -5,16 +5,16 @@ package user
 
 import (
 	"context"
-	"plating/pkg/encrypt"
-	"plating/pkg/xerr"
+	"go-zero-admin/pkg/encrypt"
+	"go-zero-admin/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"gorm.io/gorm"
 
-	systemmodel "plating/internal/model/system"
-	"plating/internal/svc"
-	"plating/internal/types"
+	systemmodel "go-zero-admin/internal/model/system"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 )
 
 type CreateUserLogic struct {
@@ -70,7 +70,7 @@ func (l *CreateUserLogic) CreateUser(req *types.CreateUserReq) error {
 	// 开启事务
 	err = l.svcCtx.Orm.WithContext(l.ctx).Transaction(func(tx *gorm.DB) error {
 		// 1.插入用户
-		userId, err := l.svcCtx.SysUserModel.InsertUser(l.ctx, tx, &systemmodel.SysUser{
+		userId, err := l.svcCtx.SysUserModel.InsertUserTrans(l.ctx, tx, &systemmodel.SysUser{
 			Username: req.Username,
 			Password: hashedPassword,
 			Nickname: req.Nickname,
@@ -86,7 +86,7 @@ func (l *CreateUserLogic) CreateUser(req *types.CreateUserReq) error {
 		}
 		// 2. 分配初始角色
 		if len(req.RoleIds) > 0 {
-			if err = l.svcCtx.SysUserRoleModel.AssignRoles(l.ctx, tx, userId, req.RoleIds); err != nil {
+			if err = l.svcCtx.SysUserRoleModel.AssignRolesTrans(l.ctx, tx, userId, req.RoleIds); err != nil {
 				l.Errorf("为新用户[%d]分配角色失败：%v", userId, err)
 				// 角色分配失败不影响用户创建成功，仅记录日志
 			}

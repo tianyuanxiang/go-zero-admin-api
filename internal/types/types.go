@@ -13,6 +13,13 @@ type ApiItem struct {
 	CreatedAt string `json:"createdAt"` // 创建时间
 }
 
+type ApiOption struct {
+	Id      int64  `json:"id"`      // 接口ID
+	ApiName string `json:"apiName"` // 接口名称
+	ApiPath string `json:"apiPath"` // 接口路径,如：/api/system/user
+	Remark  string `json:"remark"`  // 角色编码
+}
+
 type DictDataItem struct {
 	Id        int64  `json:"id"`        // 字典数据ID
 	DictType  string `json:"dictType"`  // 所属字典类型
@@ -30,21 +37,6 @@ type DictTypeItem struct {
 	Remark    string `json:"remark"`    // 备注
 	Status    int    `json:"status"`    // 状态
 	CreatedAt string `json:"createdAt"` // 创建时间
-}
-
-type DosingEventItem struct {
-	Id          int64   `json:"id"`          // 事件ID
-	TankId      string  `json:"tankId"`      // 槽体ID
-	EventTime   string  `json:"eventTime"`   // 加药时间
-	DrugType    string  `json:"drugType"`    // 药品类型
-	MassGram    float64 `json:"massGram"`    // 加药质量（克）
-	IsProcessed int     `json:"isProcessed"` // 是否已处理
-	Remark      string  `json:"remark"`      // 备注
-	CreatedAt   string  `json:"createdAt"`   // 创建时间
-}
-
-type GetLatestStateReq struct {
-	TankId string `path:"tankId"` // 槽体ID
 }
 
 type LoginLogItem struct {
@@ -86,17 +78,10 @@ type OperLogItem struct {
 	Duration   int64  `json:"duration"`   // 耗时（毫秒）
 }
 
-type ProductionEventItem struct {
-	Id            int64   `json:"id"`            // 事件ID
-	TankId        string  `json:"tankId"`        // 槽体ID
-	StartTime     string  `json:"startTime"`     // 生产开始时间
-	EndTime       string  `json:"endTime"`       // 生产结束时间
-	AmpHour       float64 `json:"ampHour"`       // 电量（Ah）
-	AreaDm2       float64 `json:"areaDm2"`       // 工件面积（dm²）
-	WorkpieceType string  `json:"workpieceType"` // 工件类型
-	IsProcessed   int     `json:"isProcessed"`   // 是否已被模型处理：1已处理 0待处理
-	Remark        string  `json:"remark"`        // 备注
-	CreatedAt     string  `json:"createdAt"`     // 记录创建时间
+type RoleOption struct {
+	Id       int64  `json:"id"`       // 角色ID
+	RoleName string `json:"roleName"` // 角色名称
+	RoleCode string `json:"roleCode"` // 角色编码
 }
 
 type UserInfo struct {
@@ -111,14 +96,4 @@ type UserInfo struct {
 }
 
 type UserInfoReq struct {
-}
-
-type WaterEventItem struct {
-	Id          int64   `json:"id"`          // 事件ID
-	TankId      string  `json:"tankId"`      // 槽体ID
-	EventTime   string  `json:"eventTime"`   // 补水时间
-	VolumeLiter float64 `json:"volumeLiter"` // 补水量（升）
-	IsProcessed int     `json:"isProcessed"` // 是否已处理
-	Remark      string  `json:"remark"`      // 备注
-	CreatedAt   string  `json:"createdAt"`   // 创建时间
 }

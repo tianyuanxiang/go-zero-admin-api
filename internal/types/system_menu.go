@@ -13,6 +13,7 @@ type CreateMenuReq struct {
 	Sort      int    `json:"sort,optional"`      // 排序序号，越小越靠前
 	Perms     string `json:"perms,optional"`     // 权限标识（如：system:user:list）
 	Status    int    `json:"status"`             // 状态：1显示 0隐藏
+	Remark    string `json:"remark"`
 }
 
 type MenuTreeResp struct {
@@ -21,6 +22,7 @@ type MenuTreeResp struct {
 
 type UpdateMenuReq struct {
 	Id        int64  `path:"id"`                 // 菜单ID
+	ParentId  int64  `json:"parentId,optional"`  // 父菜单ID，顶级为0
 	MenuName  string `json:"menuName"`           // 菜单名称
 	MenuType  int    `json:"menuType"`           // 菜单类型
 	Path      string `json:"path,optional"`      // 路由路径
@@ -29,4 +31,5 @@ type UpdateMenuReq struct {
 	Sort      int    `json:"sort,optional"`      // 排序
 	Perms     string `json:"perms,optional"`     // 权限标识
 	Status    int    `json:"status"`             // 状态
+	Remark    string `json:"remark"`
 }

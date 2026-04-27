@@ -16,9 +16,9 @@ func DeleteDictTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := dict.NewDeleteDictTypeLogic(r.Context(), svcCtx)
 		err := l.DeleteDictType()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 		} else {
-			httpx.Ok(w)
+			response.OK(w, r)
 		}
 	}
 }

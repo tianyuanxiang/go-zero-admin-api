@@ -15,7 +15,8 @@ type (
 		sysUserRoleModel
 		GetRoleIdsByUserId(ctx context.Context, userId int64) ([]int64, error)
 		GetRoleIdsByUserIds(ctx context.Context, userIds []int64) ([]SysUserRole, error)
-		AssignRoles(ctx context.Context, tx *gorm.DB, userId int64, roleIds []int64) error
+		AssignRolesTrans(ctx context.Context, tx *gorm.DB, userId int64, roleIds []int64) error
+		DeleteUserRoleTrans(ctx context.Context, tx *gorm.DB, roleId int64) error
 	}
 
 	customSysUserRoleModel struct {
@@ -55,7 +56,7 @@ func (m *customSysUserRoleModel) GetRoleIdsByUserIds(ctx context.Context, userId
 	return userRoles, nil
 }
 
-func (m *customSysUserRoleModel) AssignRoles(ctx context.Context, tx *gorm.DB, userId int64, roleIds []int64) error {
+func (m *customSysUserRoleModel) AssignRolesTrans(ctx context.Context, tx *gorm.DB, userId int64, roleIds []int64) error {
 	// 先删除该用户所有旧的角色关联
 	result := tx.WithContext(ctx).Where("user_id = ?", userId).Delete(&SysUserRole{})
 	if result.Error != nil {
@@ -77,4 +78,8 @@ func (m *customSysUserRoleModel) AssignRoles(ctx context.Context, tx *gorm.DB, u
 	}
 	// 批量插入
 	return tx.WithContext(ctx).Create(&userRoles).Error
+}
+
+func (m *customSysUserRoleModel) DeleteUserRoleTrans(ctx context.Context, tx *gorm.DB, roleId int64) error {
+	return tx.WithContext(ctx).Where("role_id = ?", roleId).Delete(&SysUserRole{}).Error
 }

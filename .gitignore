@@ -27,7 +27,7 @@ go.work.sum
 Thumbs.db
 
 # Sensitive config (contains passwords/secrets)
-etc/plating-api.yaml
+etc/config.yaml
 
 # Upload files
 uploads/

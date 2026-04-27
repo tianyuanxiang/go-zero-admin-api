@@ -5,10 +5,12 @@ package menu
 
 import (
 	"net/http"
+	"plating/pkg/response"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"plating/internal/logic/system/menu"
 	"plating/internal/svc"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func GetMenuTreeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -16,7 +18,7 @@ func GetMenuTreeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := menu.NewGetMenuTreeLogic(r.Context(), svcCtx)
 		resp, err := l.GetMenuTree()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 		} else {
 			httpx.OkJsonCtx(r.Context(), w, resp)
 		}

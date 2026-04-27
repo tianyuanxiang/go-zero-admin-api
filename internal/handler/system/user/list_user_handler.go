@@ -4,12 +4,13 @@
 package user
 
 import (
+	"go-zero-admin/pkg/response"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
-	"plating/pkg/response"
 
-	"plating/internal/logic/system/user"
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/internal/logic/system/user"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
@@ -32,7 +33,12 @@ func ListUserHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := user.NewListUserLogic(r.Context(), svcCtx)
 		resp, err := l.ListUser(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			if codeErr, ok := err.(*xerr.CodeError); ok {
+				response.Fail(w, r, codeErr.Code, codeErr.Msg)
+				return
+			}
+			response.FailInternal(w, r)
+			return
 		} else {
 			httpx.OkJsonCtx(r.Context(), w, resp)
 		}

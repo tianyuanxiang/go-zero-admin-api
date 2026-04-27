@@ -64,6 +64,7 @@ func OK(w http.ResponseWriter, r *http.Request) {
 	httpx.OkJsonCtx(r.Context(), w, Response{
 		Code: CodeSuccess,
 		Msg:  MsgSuccess,
+		Data: nil,
 	})
 }
 

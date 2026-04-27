@@ -5,17 +5,17 @@ package auth
 
 import (
 	"context"
+	"go-zero-admin/internal/common"
+	"go-zero-admin/internal/middleware"
+	"go-zero-admin/pkg/encrypt"
+	"go-zero-admin/pkg/jwtx"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
-	"plating/internal/common"
-	"plating/internal/middleware"
-	"plating/pkg/encrypt"
-	"plating/pkg/jwtx"
-	"plating/pkg/xerr"
 	"time"
 
-	systemmodel "plating/internal/model/system"
-	"plating/internal/svc"
-	"plating/internal/types"
+	systemmodel "go-zero-admin/internal/model/system"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -113,7 +113,7 @@ func (l *LoginLogic) Login(req *types.LoginReq, r *http.Request) (resp *types.Lo
 	}
 
 	// 将菜单列表构建为树形结构
-	menuTree := buildMenuTree(menus, 0)
+	menuTree := common.BuildMenuTree(menus, 0)
 
 	// 7. 记录成功登录日志
 	l.recordLoginLog(req.Username, user.Id, r, 1, "登录成功")
@@ -157,31 +157,4 @@ func (l *LoginLogic) recordLoginLog(username string, userId int64, r *http.Reque
 			l.Logger.Errorf("记录登录日志失败：%v", insertErr)
 		}
 	}()
-}
-
-// buildMenuTree 将扁平菜单列表递归构建为树形结构。
-func buildMenuTree(menus []*systemmodel.SysMenu, parentId int64) []types.MenuItem {
-	result := make([]types.MenuItem, 0)
-	for _, m := range menus {
-		if m.ParentId != parentId {
-			continue
-		}
-		menuNode := types.MenuItem{
-			Id:        m.Id,
-			ParentId:  m.ParentId,
-			MenuName:  m.Name,
-			Path:      m.Path,
-			Component: m.Component,
-			Icon:      m.Icon,
-			MenuType:  m.Type,
-			Perms:     m.Permission,
-			Sort:      m.Sort,
-		}
-		children := buildMenuTree(menus, m.Id)
-		if len(children) > 0 {
-			menuNode.Children = children
-		}
-		result = append(result, menuNode)
-	}
-	return result
 }

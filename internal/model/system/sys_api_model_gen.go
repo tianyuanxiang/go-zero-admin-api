@@ -51,6 +51,7 @@ type (
 		CreatedAt   time.Time    `db:"created_at"`  // 创建时间
 		UpdatedAt   time.Time    `db:"updated_at"`  // 更新时间
 		DeletedAt   sql.NullTime `db:"deleted_at"`  // 软删除时间, 空-未删除，非空为已删除时间
+		ApiName     string       `db:"api_name"`    // 接口中文名称
 	}
 )
 
@@ -117,8 +118,8 @@ func (m *defaultSysApiModel) Insert(ctx context.Context, data *SysApi) (sql.Resu
 	platingSysApiApiPathMethodKey := fmt.Sprintf("%s%v:%v", cachePlatingSysApiApiPathMethodPrefix, data.ApiPath, data.Method)
 	platingSysApiIdKey := fmt.Sprintf("%s%v", cachePlatingSysApiIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, sysApiRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.ApiPath, data.Method, data.ApiGroup, data.Description, data.DeletedAt)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, sysApiRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.ApiPath, data.Method, data.ApiGroup, data.Description, data.DeletedAt, data.ApiName)
 	}, platingSysApiApiPathMethodKey, platingSysApiIdKey)
 	return ret, err
 }
@@ -133,7 +134,7 @@ func (m *defaultSysApiModel) Update(ctx context.Context, newData *SysApi) error 
 	platingSysApiIdKey := fmt.Sprintf("%s%v", cachePlatingSysApiIdPrefix, data.Id)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysApiRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.ApiPath, newData.Method, newData.ApiGroup, newData.Description, newData.DeletedAt, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.ApiPath, newData.Method, newData.ApiGroup, newData.Description, newData.DeletedAt, newData.ApiName, newData.Id)
 	}, platingSysApiApiPathMethodKey, platingSysApiIdKey)
 	return err
 }

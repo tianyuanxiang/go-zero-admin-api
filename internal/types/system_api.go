@@ -11,6 +11,10 @@ type CreateApiReq struct {
 	Remark  string `json:"remark,optional"` // 备注
 }
 
+type ListAllApiResp struct {
+	ListAll []ApiOption `list`
+}
+
 type ListApiReq struct {
 	Page     int    `form:"page,default=1"`      // 页码
 	PageSize int    `form:"pageSize,default=20"` // 每页数量
@@ -24,8 +28,10 @@ type ListApiResp struct {
 }
 
 type UpdateApiReq struct {
-	Id      int64  `path:"id"`              // 接口ID
-	ApiName string `json:"apiName"`         // 接口名称
+	Id      int64  `path:"id"`      // 接口ID
+	ApiName string `json:"apiName"` // 接口名称
+	ApiPath string `json:"apiPath"`
+	Method  string `json:"method"`
 	Group   string `json:"group"`           // 接口分组
 	Remark  string `json:"remark,optional"` // 备注
 }

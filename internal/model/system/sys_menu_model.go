@@ -2,6 +2,8 @@ package system
 
 import (
 	"context"
+	"database/sql"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -14,6 +16,9 @@ type (
 	SysMenuModel interface {
 		sysMenuModel
 		ListByIds(ctx context.Context, ids []int64) ([]*SysMenu, error)
+		// HasChildren 检查是否有子菜单
+		HasChildren(ctx context.Context, id int64) (bool, error)
+		SoftDeleteTrans(ctx context.Context, tx *gorm.DB, id int64) error
 	}
 
 	customSysMenuModel struct {
@@ -43,4 +48,26 @@ func (m *customSysMenuModel) ListByIds(ctx context.Context, ids []int64) ([]*Sys
 		return nil, result.Error
 	}
 	return menus, nil
+}
+
+func (m *customSysMenuModel) HasChildren(ctx context.Context, id int64) (bool, error) {
+	var count int64
+
+	result := m.db.WithContext(ctx).Table("sys_menu").
+		Where("parent_id = ?", id).
+		Where("deleted_at IS NULL").Count(&count)
+
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return count > 0, nil
+}
+
+func (m *customSysMenuModel) SoftDeleteTrans(ctx context.Context, tx *gorm.DB, id int64) error {
+	return tx.WithContext(ctx).Table("sys_menu").
+		Where("id = ?", id).
+		Update("deleted_at", sql.NullTime{
+			Time:  time.Now(),
+			Valid: false,
+		}).Error
 }

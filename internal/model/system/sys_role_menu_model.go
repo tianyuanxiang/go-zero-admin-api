@@ -14,6 +14,9 @@ type (
 	SysRoleMenuModel interface {
 		sysRoleMenuModel
 		GetMenuIdsByRoleIds(ctx context.Context, roleIds []int64) ([]int64, error)
+		InsertRoleMenuTrans(ctx context.Context, tx *gorm.DB, roleMenu []SysRoleMenu) (int64, error)
+		DeleteRoleMenuByRoleIdTrans(ctx context.Context, tx *gorm.DB, roleId int64) error
+		DeleteRoleMenuByMenuIdTrans(ctx context.Context, tx *gorm.DB, menuId int64) error
 	}
 
 	customSysRoleMenuModel struct {
@@ -43,4 +46,18 @@ func (m *customSysRoleMenuModel) GetMenuIdsByRoleIds(ctx context.Context, roleId
 		return nil, result.Error
 	}
 	return menuIds, nil
+}
+
+func (m *customSysRoleMenuModel) InsertRoleMenuTrans(ctx context.Context, tx *gorm.DB, roleMenus []SysRoleMenu) (int64, error) {
+
+	result := tx.WithContext(ctx).Table("sys_role_menu").Create(&roleMenus)
+	return result.RowsAffected, result.Error
+}
+
+func (m *customSysRoleMenuModel) DeleteRoleMenuByRoleIdTrans(ctx context.Context, tx *gorm.DB, roleId int64) error {
+	return tx.WithContext(ctx).Where("role_id = ?", roleId).Delete(&SysRoleMenu{}).Error
+}
+
+func (m *customSysRoleMenuModel) DeleteRoleMenuByMenuIdTrans(ctx context.Context, tx *gorm.DB, menuId int64) error {
+	return tx.WithContext(ctx).Where("menu_id = ?", menuId).Delete(&SysRoleMenu{}).Error
 }

@@ -16,9 +16,9 @@ func UploadFileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := file.NewUploadFileLogic(r.Context(), svcCtx)
 		resp, err := l.UploadFile()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			response.OKJsonCtx(r.Context(), w, resp)
 		}
 	}
 }

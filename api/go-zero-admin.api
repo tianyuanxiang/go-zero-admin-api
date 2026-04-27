@@ -19,7 +19,3 @@ import "desc/system/api.api"
 import "desc/system/dict.api"
 import "desc/system/log.api"
 import "desc/system/file.api"
-// 引入槽液业务相关接口
-import "desc/plate/tank.api"
-import "desc/plate/event.api"
-import "desc/plate/state.api"
