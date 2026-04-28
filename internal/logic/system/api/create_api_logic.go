@@ -5,7 +5,7 @@ package api
 
 import (
 	"context"
-	systemmodel "go-zero-admin/internal/model/system"
+	"go-zero-admin/internal/model/system"
 	"go-zero-admin/pkg/xerr"
 
 	"go-zero-admin/internal/svc"
@@ -40,7 +40,7 @@ func (l *CreateApiLogic) CreateApi(req *types.CreateApiReq) error {
 		return xerr.NewCodeErrorMsg(xerr.ErrDuplicate, "该路径和方法组合已存在")
 	}
 
-	_, err = l.svcCtx.SysApiModel.Insert(l.ctx, &systemmodel.SysApi{
+	_, err = l.svcCtx.SysApiModel.Insert(l.ctx, &system.SysApi{
 		ApiPath:     req.ApiPath,
 		ApiName:     req.ApiName,
 		Method:      req.Method,

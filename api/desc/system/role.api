@@ -66,7 +66,7 @@ type ListRoleReq {
 	group:      system/role
 	middleware: AuthMiddleware,CasbinMiddleware
 )
-service go-zero-admin-api {
+service admin-api {
 	// 创建角色
 	@handler CreateRoleHandler
 	post /role (CreateRoleReq)

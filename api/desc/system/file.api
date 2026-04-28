@@ -27,7 +27,7 @@ type ListFileResp {
 	group: system/file
 	middleware: AuthMiddleware,CasbinMiddleware
 )
-service go-zero-admin-api {
+service admin-api {
 	// 上传文件（multipart/form-data）
 	@handler UploadFileHandler
 	post /file/upload returns (FileInfoResp)

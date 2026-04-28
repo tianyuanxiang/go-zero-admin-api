@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"time"
 
-	platemodel "go-zero-admin/internal/model/plate"
 	systemmodel "go-zero-admin/internal/model/system"
 
 	casbinv2 "github.com/casbin/casbin/v2"
@@ -64,19 +63,6 @@ type ServiceContext struct {
 	SysOperLogModel systemmodel.SysOperLogModel
 	// SysFileModel 文件记录数据访问
 	SysFileModel systemmodel.SysFileModel
-
-	// --- 槽液分析业务 Model 层 ---
-
-	// PlateTankConfigModel 槽体配置数据访问
-	PlateTankConfigModel platemodel.PlateTankConfigModel
-	// PlateModelStateModel 模型状态数据访问
-	PlateModelStateModel platemodel.PlateModelStateModel
-	// PlateProductionEventModel 生产事件数据访问
-	PlateProductionEventModel platemodel.PlateProductionEventsModel
-	// DosingEventModel 加药事件数据访问
-	PlateDosingEventModel platemodel.PlateDosingEventsModel
-	// PlateWaterEventModel 补水事件数据访问
-	PlateWaterEventModel platemodel.PlateWaterEventsModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -137,15 +123,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		SysRoleApiModel:  systemmodel.NewSysRoleApiModel(conn, c.CacheRedis, db),
 		SysDictTypeModel: systemmodel.NewSysDictTypeModel(conn, c.CacheRedis, db),
 		SysDictDataModel: systemmodel.NewSysDictDataModel(conn, c.CacheRedis, db),
-		SysLoginLogModel: systemmodel.NewSysLoginLogModel(conn, c.CacheRedis),
-		SysOperLogModel:  systemmodel.NewSysOperLogModel(conn, c.CacheRedis),
-		SysFileModel:     systemmodel.NewSysFileModel(conn, c.CacheRedis),
-
-		// 槽液分析业务 Model 层初始化
-		PlateTankConfigModel:      platemodel.NewPlateTankConfigModel(conn, c.CacheRedis),
-		PlateModelStateModel:      platemodel.NewPlateModelStateModel(conn, c.CacheRedis),
-		PlateProductionEventModel: platemodel.NewPlateProductionEventsModel(conn, c.CacheRedis),
-		PlateDosingEventModel:     platemodel.NewPlateDosingEventsModel(conn, c.CacheRedis),
-		PlateWaterEventModel:      platemodel.NewPlateWaterEventsModel(conn, c.CacheRedis),
+		SysLoginLogModel: systemmodel.NewSysLoginLogModel(conn, c.CacheRedis, db),
+		SysOperLogModel:  systemmodel.NewSysOperLogModel(conn, c.CacheRedis, db),
+		SysFileModel:     systemmodel.NewSysFileModel(conn, c.CacheRedis, db),
 	}
 }

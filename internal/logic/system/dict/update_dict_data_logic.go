@@ -5,11 +5,14 @@ package dict
 
 import (
 	"context"
+	"go-zero-admin/internal/model/system"
+	"go-zero-admin/pkg/xerr"
 
 	"go-zero-admin/internal/svc"
 	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type UpdateDictDataLogic struct {
@@ -27,7 +30,21 @@ func NewUpdateDictDataLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Up
 }
 
 func (l *UpdateDictDataLogic) UpdateDictData(req *types.UpdateDictDataReq) error {
-	// todo: add your logic here and delete this line
+	_, err := l.svcCtx.SysDictDataModel.FindOne(l.ctx, req.Id)
+	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return xerr.NewCodeError(xerr.ErrNotFound)
+		}
+		return xerr.NewCodeError(xerr.ErrInternal)
+	}
 
-	return nil
+	return l.svcCtx.SysDictDataModel.Update(l.ctx, &system.SysDictData{
+		Id:        req.Id,
+		TypeId:    int64(req.DictTypeId),
+		Label:     req.DictLabel,
+		DictValue: req.DictValue,
+		Sort:      int64(req.Sort),
+		Status:    int64(req.Status),
+		Remark:    req.Remark,
+	})
 }

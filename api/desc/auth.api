@@ -42,7 +42,7 @@ type (
 	prefix: /api/auth
 	group:  auth
 )
-service go-zero-admin-api {
+service admin-api {
 	// 用户登录
 	@handler LoginHandler
 	post /login (LoginReq) returns (LoginResp)
@@ -63,7 +63,7 @@ type ChangePasswordReq {
 	group:      auth
 	middleware: AuthMiddleware
 )
-service go-zero-admin-api {
+service admin-api {
 	// 退出登录（使当前令牌失效）
 	@handler LogoutHandler
 	post /logout

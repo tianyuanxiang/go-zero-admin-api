@@ -43,7 +43,7 @@ type MenuTreeResp {
 	group:      system/menu
 	middleware: AuthMiddleware,CasbinMiddleware
 )
-service go-zero-admin-api {
+service admin-api {
 	// 创建菜单
 	@handler CreateMenuHandler
 	post /menu (CreateMenuReq)

@@ -65,7 +65,7 @@ type ResetPasswordReq {
 	group:      system/user
 	middleware: AuthMiddleware,CasbinMiddleware
 )
-service go-zero-admin-api {
+service admin-api {
 	// 创建用户
 	@handler CreateUserHandler
 	post /user (CreateUserReq)

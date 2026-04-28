@@ -5,11 +5,14 @@ package dict
 
 import (
 	"context"
+	"go-zero-admin/internal/model/system"
+	"go-zero-admin/pkg/xerr"
 
 	"go-zero-admin/internal/svc"
 	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type UpdateDictTypeLogic struct {
@@ -27,7 +30,19 @@ func NewUpdateDictTypeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Up
 }
 
 func (l *UpdateDictTypeLogic) UpdateDictType(req *types.UpdateDictTypeReq) error {
-	// todo: add your logic here and delete this line
+	_, err := l.svcCtx.SysDictTypeModel.FindOne(l.ctx, req.Id)
+	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return xerr.NewCodeError(xerr.ErrNotFound)
+		}
+		return xerr.NewCodeError(xerr.ErrInternal)
+	}
 
-	return nil
+	return l.svcCtx.SysDictTypeModel.Update(l.ctx, &system.SysDictType{
+		Id:     req.Id,
+		Name:   req.DictName,
+		Code:   req.DictType,
+		Status: int64(req.Status),
+		Remark: req.Remark,
+	})
 }

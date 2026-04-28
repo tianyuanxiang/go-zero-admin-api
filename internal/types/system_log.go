@@ -6,25 +6,25 @@ package types
 type ListLoginLogReq struct {
 	Page      int    `form:"page,default=1"`      // 页码
 	PageSize  int    `form:"pageSize,default=20"` // 每页数量
-	Username  string `form:"username,optional"`   // 用户名过滤
+	Keyword   string `json:"keyword"`             // 关键词，作用于用户名、Ip、地区
 	Status    int    `form:"status,optional"`     // 状态：1成功 0失败
 	StartTime string `form:"startTime,optional"`  // 开始时间（格式：2006-01-02 15:04:05）
 	EndTime   string `form:"endTime,optional"`    // 结束时间
 }
 
 type ListLoginLogResp struct {
-	Total int64          `json:"total"` // 总数
+	Total int            `json:"total"` // 总数
 	List  []LoginLogItem `json:"list"`  // 日志列表
 }
 
 type ListOperLogReq struct {
-	Page      int    `form:"page,default=1"`      // 页码
-	PageSize  int    `form:"pageSize,default=20"` // 每页数量
-	OperName  string `form:"operName,optional"`   // 操作人
-	OperType  string `form:"operType,optional"`   // 操作类型
-	Status    int    `form:"status,optional"`     // 状态：1成功 0失败
-	StartTime string `form:"startTime,optional"`  // 开始时间
-	EndTime   string `form:"endTime,optional"`    // 结束时间
+	Page         int    `form:"page,default=1"`      // 页码
+	PageSize     int    `form:"pageSize,default=20"` // 每页数量
+	Keyword      string `json:"keyword"`             // 关键词，作用于操作人、请求方式、操作IP
+	BusinessType string `json:"businessType"`        // 业务类型：0=其他，1=新增，2=修改，3=删除，4=查询
+	Status       int    `form:"status,optional"`     // 状态：1成功 0失败
+	StartTime    string `form:"startTime,optional"`  // 开始时间
+	EndTime      string `form:"endTime,optional"`    // 结束时间
 }
 
 type ListOperLogResp struct {

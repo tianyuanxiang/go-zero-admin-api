@@ -26,8 +26,28 @@ func NewGetDictDataByTypeLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
-func (l *GetDictDataByTypeLogic) GetDictDataByType() (resp *types.ListDictDataResp, err error) {
-	// todo: add your logic here and delete this line
+func (l *GetDictDataByTypeLogic) GetDictDataByType(dictTypeId int64) (resp *types.ListDictDataResp, err error) {
 
-	return
+	DictData, count, err := l.svcCtx.SysDictDataModel.ListByDictTypeId(l.ctx, dictTypeId)
+	if err != nil {
+		l.Errorf("根据字典类型查询字典数据失败 %v\n", err)
+		return nil, err
+	}
+
+	list := make([]types.DictDataItem, 0, len(DictData))
+	for _, item := range DictData {
+		list = append(list, types.DictDataItem{
+			Id:        int(item.Id),
+			DictType:  int(item.TypeId),
+			DictLabel: item.Label,
+			DictValue: item.DictValue,
+			Sort:      int(item.Sort),
+			Status:    int(item.Status),
+			Remark:    item.Remark,
+		})
+	}
+	return &types.ListDictDataResp{
+		Total: count,
+		List:  list,
+	}, err
 }

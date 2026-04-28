@@ -4,12 +4,15 @@
 package log
 
 import (
+	"go-zero-admin/pkg/response"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
 
+	"go-zero-admin/internal/logic/system/log"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
+
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"plating/internal/logic/system/log"
-	"plating/internal/svc"
-	"plating/internal/types"
 )
 
 func ListLoginLogHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -19,13 +22,24 @@ func ListLoginLogHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.FailWithMsg(w, r, err.Error())
 			return
 		}
+		if req.Page <= 0 {
+			req.Page = 1
+		}
+		if req.PageSize <= 0 {
+			req.PageSize = 10
+		}
 
 		l := log.NewListLoginLogLogic(r.Context(), svcCtx)
 		resp, err := l.ListLoginLog(&req)
 		if err != nil {
-			response.FailWithMsg(w, r, err.Error())
+			if codeErr, ok := err.(*xerr.CodeError); ok {
+				response.Fail(w, r, codeErr.Code, codeErr.Msg)
+				return
+			}
+			response.FailInternal(w, r)
+			return
 		} else {
-			response.OKJsonCtx(r.Context(), w, resp)
+			response.OkWithData(w, r, resp)
 		}
 	}
 }

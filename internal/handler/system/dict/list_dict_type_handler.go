@@ -7,10 +7,11 @@ import (
 	"go-zero-admin/pkg/response"
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"go-zero-admin/internal/logic/system/dict"
 	"go-zero-admin/internal/svc"
 	"go-zero-admin/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func ListDictTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -26,7 +27,7 @@ func ListDictTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if err != nil {
 			response.FailWithMsg(w, r, err.Error())
 		} else {
-			response.OKJsonCtx(r.Context(), w, resp)
+			response.OkWithData(w, r, resp)
 		}
 	}
 }

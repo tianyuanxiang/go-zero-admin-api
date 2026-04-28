@@ -4,19 +4,19 @@
 package types
 
 type CreateDictDataReq struct {
-	DictType  string `json:"dictType"`        // 所属字典类型编码
-	DictLabel string `json:"dictLabel"`       // 字典标签（显示文本）
-	DictValue string `json:"dictValue"`       // 字典值（实际存储值）
-	Sort      int    `json:"sort,optional"`   // 排序序号
-	Remark    string `json:"remark,optional"` // 备注
-	Status    int    `json:"status"`          // 状态：1启用 0禁用
+	DictTypeId int    `json:"dictTypeId" validate:"required"` // 字典类型ID
+	DictLabel  string `json:"dictLabel" validate:"required"`  // 字典标签（显示文本）
+	DictValue  string `json:"dictValue" validate:"required"`  // 字典值（实际存储值）
+	Sort       int    `json:"sort,optional"`                  // 排序序号
+	Remark     string `json:"remark,optional"`                // 备注
+	Status     int    `json:"status"`                         // 状态：1启用 0禁用
 }
 
 type CreateDictTypeReq struct {
-	DictName string `json:"dictName"`        // 字典名称
-	DictType string `json:"dictType"`        // 字典类型（唯一编码，如：sys_user_status）
-	Remark   string `json:"remark,optional"` // 备注
-	Status   int    `json:"status"`          // 状态：1启用 0禁用
+	DictName string `json:"dictName" validate:"required"` // 字典名称
+	DictType string `json:"dictType" validate:"required"` // 字典类型（唯一编码，如：sys_user_status）
+	Remark   string `json:"remark,optional"`              // 备注
+	Status   int    `json:"status"`                       // 状态：1启用 0禁用
 }
 
 type ListDictDataResp struct {
@@ -31,22 +31,24 @@ type ListDictTypeReq struct {
 }
 
 type ListDictTypeResp struct {
-	Total int64          `json:"total"` // 总数
+	Total int            `json:"total"` // 总数
 	List  []DictTypeItem `json:"list"`  // 字典类型列表
 }
 
 type UpdateDictDataReq struct {
-	Id        int64  `path:"id"`              // 字典数据ID
-	DictLabel string `json:"dictLabel"`       // 字典标签
-	DictValue string `json:"dictValue"`       // 字典值
-	Sort      int    `json:"sort,optional"`   // 排序
-	Remark    string `json:"remark,optional"` // 备注
-	Status    int    `json:"status"`          // 状态
+	Id         int    `path:"id" validate:"required"`         // 字典数据ID
+	DictTypeId int    `json:"dictTypeId" validate:"required"` // 字典类型ID
+	DictLabel  string `json:"dictLabel" validate:"required"`  // 字典标签
+	DictValue  string `json:"dictValue" validate:"required"`  // 字典值
+	Sort       int    `json:"sort,optional"`                  // 排序
+	Remark     string `json:"remark,optional"`                // 备注
+	Status     int    `json:"status"`                         // 状态
 }
 
 type UpdateDictTypeReq struct {
-	Id       int64  `path:"id"`              // 字典类型ID
-	DictName string `json:"dictName"`        // 字典名称
-	Remark   string `json:"remark,optional"` // 备注
-	Status   int    `json:"status"`          // 状态
+	Id       int    `path:"id" validate:"required"` // 字典类型ID
+	DictName string `json:"dictName"`               // 字典名称
+	DictType string `json:"dictType" `              // 字典类型（唯一编码，如：sys_user_status）
+	Remark   string `json:"remark,optional"`        // 备注
+	Status   int    `json:"status"`                 // 状态
 }

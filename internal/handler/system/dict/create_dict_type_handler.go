@@ -4,12 +4,15 @@
 package dict
 
 import (
+	"go-zero-admin/pkg/response"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"go-zero-admin/internal/logic/system/dict"
 	"go-zero-admin/internal/svc"
 	"go-zero-admin/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func CreateDictTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,7 +26,12 @@ func CreateDictTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := dict.NewCreateDictTypeLogic(r.Context(), svcCtx)
 		err := l.CreateDictType(&req)
 		if err != nil {
-			response.FailWithMsg(w, r, err.Error())
+			if codeErr, ok := err.(*xerr.CodeError); ok {
+				response.Fail(w, r, codeErr.Code, codeErr.Msg)
+				return
+			}
+			response.FailInternal(w, r)
+			return
 		} else {
 			response.OK(w, r)
 		}

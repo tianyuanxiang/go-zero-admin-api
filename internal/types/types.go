@@ -21,8 +21,8 @@ type ApiOption struct {
 }
 
 type DictDataItem struct {
-	Id        int64  `json:"id"`        // 字典数据ID
-	DictType  string `json:"dictType"`  // 所属字典类型
+	Id        int    `json:"id"`        // 字典数据ID
+	DictType  int    `json:"dictType"`  // 所属字典类型
 	DictLabel string `json:"dictLabel"` // 字典标签
 	DictValue string `json:"dictValue"` // 字典值
 	Sort      int    `json:"sort"`      // 排序
@@ -31,7 +31,7 @@ type DictDataItem struct {
 }
 
 type DictTypeItem struct {
-	Id        int64  `json:"id"`        // 字典类型ID
+	Id        int    `json:"id"`        // 字典类型ID
 	DictName  string `json:"dictName"`  // 字典名称
 	DictType  string `json:"dictType"`  // 字典类型编码
 	Remark    string `json:"remark"`    // 备注
@@ -40,10 +40,13 @@ type DictTypeItem struct {
 }
 
 type LoginLogItem struct {
-	Id        int64  `json:"id"`        // 日志ID
+	Id        int    `json:"id"` // 日志ID
+	UserId    int    `json:"userId"`
 	Username  string `json:"username"`  // 用户名
 	Ip        string `json:"ip"`        // 登录IP
+	Location  string `json:"location"`  // 登录地
 	UserAgent string `json:"userAgent"` // 浏览器信息
+	OS        string `json:"os"`        // 操作系统
 	Status    int    `json:"status"`    // 登录状态：1成功 0失败
 	Msg       string `json:"msg"`       // 提示消息
 	LoginTime string `json:"loginTime"` // 登录时间
@@ -64,18 +67,19 @@ type MenuItem struct {
 }
 
 type OperLogItem struct {
-	Id         int64  `json:"id"`         // 日志ID
-	OperName   string `json:"operName"`   // 操作人名称
-	OperType   string `json:"operType"`   // 操作类型（create/update/delete/query）
-	Module     string `json:"module"`     // 操作模块
-	Method     string `json:"method"`     // HTTP方法
+	Id         int    `json:"id"`        // 日志ID
+	Title      string `json:"title"`     // 操作模块标题
+	OperType   string `json:"operType"`  // 操作类型（create/update/delete/query）
+	Method     string `json:"method"`    // HTTP方法
+	ReqMethod  string `json:"reqMethod"` // 请求方法
+	OperName   string `json:"operName"`  // 操作人名称
+	DeptName   string `json:"deptName"`
 	ReqUrl     string `json:"reqUrl"`     // 请求URL
 	ReqParam   string `json:"reqParam"`   // 请求参数
 	RespResult string `json:"respResult"` // 响应结果
 	Status     int    `json:"status"`     // 状态：1成功 0失败
 	Ip         string `json:"ip"`         // 操作IP
 	OperTime   string `json:"operTime"`   // 操作时间
-	Duration   int64  `json:"duration"`   // 耗时（毫秒）
 }
 
 type RoleOption struct {

@@ -1,6 +1,10 @@
 package system
 
 import (
+	"context"
+	"database/sql"
+	"time"
+
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"gorm.io/gorm"
@@ -13,6 +17,9 @@ type (
 	// and implement the added methods in customSysDictDataModel.
 	SysDictDataModel interface {
 		sysDictDataModel
+		ListByDictTypeId(ctx context.Context, dictTypeId int64) ([]*SysDictData, int64, error)
+		SoftDeleteDictDataByDictTypeId(ctx context.Context, dictTypeId int64) error
+		SoftDeleteDictDataByDictDataId(ctx context.Context, dictDataId int64) error
 	}
 
 	customSysDictDataModel struct {
@@ -27,4 +34,43 @@ func NewSysDictDataModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts
 		defaultSysDictDataModel: newSysDictDataModel(conn, c, opts...),
 		db:                      db,
 	}
+}
+
+func (m *customSysDictDataModel) ListByDictTypeId(ctx context.Context, dictTypeId int64) ([]*SysDictData, int64, error) {
+	var (
+		dictData []*SysDictData
+		count    int64
+	)
+	db := m.db.WithContext(ctx).Table("sys_dict_data").
+		Where("dict_type_id = ?", dictTypeId).
+		Where("deleted_at is NULL")
+	// 查数量
+	if err := db.Count(&count).Error; err != nil {
+		return nil, 0, err
+	}
+	// 查数据
+	result := db.Find(&dictData)
+	if result.Error != nil {
+		return nil, count, result.Error
+	}
+	return dictData, count, nil
+
+}
+
+func (m *customSysDictDataModel) SoftDeleteDictDataByDictTypeId(ctx context.Context, dictTypeId int64) error {
+	return m.db.WithContext(ctx).Table("sys_dict_data").
+		Where("type_id = ?", dictTypeId).
+		Update("deleted_at", sql.NullTime{
+			Time:  time.Now(),
+			Valid: false,
+		}).Error
+}
+
+func (m *customSysDictDataModel) SoftDeleteDictDataByDictDataId(ctx context.Context, dictDataId int64) error {
+	return m.db.WithContext(ctx).Table("sys_dict_data").
+		Where("id = ?", dictDataId).
+		Update("deleted_at", sql.NullTime{
+			Time:  time.Now(),
+			Valid: false,
+		}).Error
 }
