@@ -7,9 +7,9 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"plating/internal/logic/system/file"
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/internal/logic/system/file"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 )
 
 func ListFileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

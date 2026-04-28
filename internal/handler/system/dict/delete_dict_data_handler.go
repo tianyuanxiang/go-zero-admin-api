@@ -4,11 +4,12 @@
 package dict
 
 import (
+	"go-zero-admin/pkg/response"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"plating/internal/logic/system/dict"
-	"plating/internal/svc"
+	"go-zero-admin/internal/logic/system/dict"
+	"go-zero-admin/internal/svc"
 )
 
 func DeleteDictDataHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

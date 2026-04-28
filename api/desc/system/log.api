@@ -65,7 +65,7 @@ type ListOperLogResp {
 	group: system/log
 	middleware: AuthMiddleware,CasbinMiddleware
 )
-service plating-api {
+service go-zero-admin-api {
 	// 分页查询登录日志
 	@handler ListLoginLogHandler
 	get /log/login (ListLoginLogReq) returns (ListLoginLogResp)

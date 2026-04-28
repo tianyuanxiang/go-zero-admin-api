@@ -81,7 +81,7 @@ type ListDictDataResp {
 	group: system/dict
 	middleware: AuthMiddleware,CasbinMiddleware
 )
-service plating-api {
+service go-zero-admin-api {
 	// 创建字典类型
 	@handler CreateDictTypeHandler
 	post /dict/type (CreateDictTypeReq)

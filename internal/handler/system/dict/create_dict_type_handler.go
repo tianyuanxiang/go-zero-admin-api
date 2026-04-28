@@ -7,9 +7,9 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"plating/internal/logic/system/dict"
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/internal/logic/system/dict"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 )
 
 func CreateDictTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

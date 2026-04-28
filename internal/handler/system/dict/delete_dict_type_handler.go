@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"plating/internal/logic/system/dict"
-	"plating/internal/svc"
+	"go-zero-admin/internal/logic/system/dict"
+	"go-zero-admin/internal/svc"
 )
 
 func DeleteDictTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

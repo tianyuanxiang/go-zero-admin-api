@@ -43,7 +43,7 @@ type MenuTreeResp {
 	group:      system/menu
 	middleware: AuthMiddleware,CasbinMiddleware
 )
-service plating-api {
+service go-zero-admin-api {
 	// 创建菜单
 	@handler CreateMenuHandler
 	post /menu (CreateMenuReq)

@@ -62,7 +62,7 @@ type ListApiResp {
 	group:      system/api
 	middleware: AuthMiddleware,CasbinMiddleware
 )
-service plating-api {
+service go-zero-admin-api {
 	// 创建API接口记录
 	@handler CreateApiHandler
 	post /api (CreateApiReq)

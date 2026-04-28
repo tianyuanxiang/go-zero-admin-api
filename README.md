@@ -90,8 +90,8 @@ go-zero-admin/
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/tianyuanxiang/plating.git
-cd plating
+git clone https://github.com/tianyuanxiang/go-zero-admin.git
+cd go-zero-admin
 ```
 
 ### 2. 初始化数据库

@@ -4,11 +4,12 @@
 package file
 
 import (
+	"go-zero-admin/pkg/response"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"plating/internal/logic/system/file"
-	"plating/internal/svc"
+	"go-zero-admin/internal/logic/system/file"
+	"go-zero-admin/internal/svc"
 )
 
 func UploadFileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
