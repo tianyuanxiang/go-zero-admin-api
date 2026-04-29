@@ -58,7 +58,7 @@ func (m *customSysUserRoleModel) GetRoleIdsByUserIds(ctx context.Context, userId
 
 func (m *customSysUserRoleModel) AssignRolesTrans(ctx context.Context, tx *gorm.DB, userId int64, roleIds []int64) error {
 	// 先删除该用户所有旧的角色关联
-	result := tx.WithContext(ctx).Where("user_id = ?", userId).Delete(&SysUserRole{})
+	result := tx.WithContext(ctx).Table("sys_user_role").Where("user_id = ?", userId).Delete(&SysUserRole{})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -77,7 +77,7 @@ func (m *customSysUserRoleModel) AssignRolesTrans(ctx context.Context, tx *gorm.
 		})
 	}
 	// 批量插入
-	return tx.WithContext(ctx).Create(&userRoles).Error
+	return tx.WithContext(ctx).Table("sys_user_role").Create(&userRoles).Error
 }
 
 func (m *customSysUserRoleModel) DeleteUserRoleTrans(ctx context.Context, tx *gorm.DB, roleId int64) error {

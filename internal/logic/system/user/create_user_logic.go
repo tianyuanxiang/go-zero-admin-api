@@ -63,7 +63,7 @@ func (l *CreateUserLogic) CreateUser(req *types.CreateUserReq) error {
 	}
 	// 默认状态为启用
 	status := req.Status
-	if status == 0 && req.Status == 0 {
+	if status == 0 {
 		status = 1
 	}
 	// 3.插入用户
@@ -91,7 +91,7 @@ func (l *CreateUserLogic) CreateUser(req *types.CreateUserReq) error {
 				// 角色分配失败不影响用户创建成功，仅记录日志
 			}
 		}
-		return nil
+		return err
 	})
 	if err != nil {
 		l.Logger.Errorf("创建用户事务执行失败: %v", err)
