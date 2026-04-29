@@ -50,6 +50,8 @@ func (l *GetRoleLogic) GetRole(roleId int64) (resp *types.RoleItem, err error) {
 		Id:        role.Id,
 		RoleCode:  role.Code,
 		RoleName:  role.Name,
+		Status:    int(role.Status),
+		Sort:      int(role.Sort),
 		Remark:    role.Remark,
 		CreatedAt: role.CreatedAt.Format("2006-01-02 15:04:05"),
 	}, err

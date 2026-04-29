@@ -11,12 +11,14 @@ import (
 
 	"go-zero-admin/internal/logic/system/api"
 	"go-zero-admin/internal/svc"
+
+	"github.com/zeromicro/go-zero/rest/pathvar"
 )
 
 func DeleteApiHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		idStr := r.PathValue("id")
+		idStr := pathvar.Vars(r)["id"]
 		apiId, err := strconv.ParseInt(idStr, 10, 64)
 		if err != nil || apiId <= 0 {
 			response.FailWithMsg(w, r, "ApiID格式错误")

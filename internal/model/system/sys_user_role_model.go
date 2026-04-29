@@ -81,5 +81,5 @@ func (m *customSysUserRoleModel) AssignRolesTrans(ctx context.Context, tx *gorm.
 }
 
 func (m *customSysUserRoleModel) DeleteUserRoleTrans(ctx context.Context, tx *gorm.DB, roleId int64) error {
-	return tx.WithContext(ctx).Where("role_id = ?", roleId).Delete(&SysUserRole{}).Error
+	return tx.WithContext(ctx).Table("sys_user_role").Where("role_id = ?", roleId).Delete(&SysUserRole{}).Error
 }

@@ -11,11 +11,13 @@ import (
 
 	"go-zero-admin/internal/logic/system/dict"
 	"go-zero-admin/internal/svc"
+
+	"github.com/zeromicro/go-zero/rest/pathvar"
 )
 
 func DeleteDictDataHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idStr := r.PathValue("id")
+		idStr := pathvar.Vars(r)["id"]
 		dictDataId, err := strconv.ParseInt(idStr, 10, 64)
 		if err != nil || dictDataId <= 0 {
 			response.FailWithMsg(w, r, "字典数据ID格式错误")

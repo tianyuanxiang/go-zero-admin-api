@@ -10,8 +10,8 @@ type CreateUserReq struct {
 	Email    string  `json:"email,optional"`    // 邮箱
 	Phone    string  `json:"phone,optional"`    // 手机号
 	Status   int     `json:"status"`            // 状态：1启用 0禁用
-	Avatar   string  `json:"avatar"`            // 头像URL
-	Remark   string  `json:"remark"`
+	Avatar   string  `json:"avatar,optional"`   // 头像URL
+	Remark   string  `json:"remark,optional"`
 	RoleIds  []int64 `json:"roleIds,optional"` // 角色ID列表
 }
 
@@ -38,8 +38,8 @@ type UpdateUserReq struct {
 	Email    string  `json:"email,optional"`    // 邮箱
 	Phone    string  `json:"phone,optional"`    // 手机号
 	Status   int     `json:"status"`            // 状态：1启用 0禁用
-	Avatar   string  `json:"avatar"`
-	Remark   string  `json:"remark"`           // 头像URL
+	Avatar   string  `json:"avatar,optional"`
+	Remark   string  `json:"remark,optional"`  // 头像URL
 	RoleIds  []int64 `json:"roleIds,optional"` // 角色ID列表
 }
 

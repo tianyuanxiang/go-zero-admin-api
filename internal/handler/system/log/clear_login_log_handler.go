@@ -11,11 +11,13 @@ import (
 
 	"go-zero-admin/internal/logic/system/log"
 	"go-zero-admin/internal/svc"
+
+	"github.com/zeromicro/go-zero/rest/pathvar"
 )
 
 func ClearLoginLogHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idStr := r.PathValue("id")
+		idStr := pathvar.Vars(r)["id"]
 		logId, err := strconv.ParseInt(idStr, 10, 64)
 		if err != nil || logId <= 0 {
 			response.FailWithMsg(w, r, "登录日志ID格式错误")

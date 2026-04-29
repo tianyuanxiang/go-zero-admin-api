@@ -35,6 +35,7 @@ func CasbinMiddleware(enforcer *casbinv2.Enforcer, conn sqlx.SqlConn, c cache.Ca
 
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			logx.Infof("\033[31m%s\033[0m", "***************************** casbinMiddleware start **********************")
 			// 从Context获取当前用户ID（由AuthMiddleware写入）
 			userId := GetUserIdFromCtx(r.Context())
 			if userId == 0 {
@@ -90,7 +91,7 @@ func CasbinMiddleware(enforcer *casbinv2.Enforcer, conn sqlx.SqlConn, c cache.Ca
 				response.FailForbidden(w, r)
 				return
 			}
-
+			logx.Infof("\u001B[31m%s\u001B[0m", "********************************** casbinMiddleware end *********************************")
 			next.ServeHTTP(w, r)
 		})
 	}

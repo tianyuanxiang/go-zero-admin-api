@@ -14,11 +14,12 @@ import (
 	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
+	"github.com/zeromicro/go-zero/rest/pathvar"
 )
 
 func UpdateMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idStr := r.PathValue("id")
+		idStr := pathvar.Vars(r)["id"]
 		menuId, err := strconv.ParseInt(idStr, 10, 64)
 		if err != nil || menuId <= 0 {
 			response.FailWithMsg(w, r, "菜单ID格式错误")

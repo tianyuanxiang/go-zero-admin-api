@@ -5,6 +5,7 @@ package role
 
 import (
 	"context"
+	"go-zero-admin/internal/common"
 	systemmodel "go-zero-admin/internal/model/system"
 	"go-zero-admin/internal/svc"
 	"go-zero-admin/internal/types"
@@ -46,7 +47,7 @@ func (l *CreateRoleLogic) CreateRole(req *types.CreateRoleReq) error {
 	if len(req.ApiIds) > 0 {
 		apiModels, err = l.svcCtx.SysApiModel.ListByIds(l.ctx, req.ApiIds)
 		if err != nil {
-			l.Logger.Errorf("查询接口信息失败：%v", err)
+			l.Errorf("查询接口信息失败：%v", err)
 			return xerr.NewCodeError(xerr.ErrInternal)
 		}
 		if len(apiModels) != len(req.ApiIds) {
@@ -65,12 +66,18 @@ func (l *CreateRoleLogic) CreateRole(req *types.CreateRoleReq) error {
 			Sort:   req.Sort,
 		})
 		if err != nil {
-			l.Logger.Errorf("插入角色记录失败：%v", err)
+			l.Errorf("插入角色记录失败：%v", err)
 			return xerr.NewCodeError(xerr.ErrInternal)
 		}
 
 		// 2.插入关联菜单ID
 		if len(req.MenuIds) > 0 {
+			// 自动补全菜单祖先链，确保父菜单不会缺失
+			req.MenuIds, err = common.CompleteMenuAncestors(l.ctx, l.svcCtx.SysMenuModel, req.MenuIds)
+			if err != nil {
+				l.Errorf("补全菜单祖先链失败：%v", err)
+				return xerr.NewCodeError(xerr.ErrInternal)
+			}
 			roleMenus := make([]systemmodel.SysRoleMenu, 0, len(req.MenuIds))
 			for _, menuId := range req.MenuIds {
 				roleMenus = append(roleMenus, systemmodel.SysRoleMenu{
@@ -80,7 +87,7 @@ func (l *CreateRoleLogic) CreateRole(req *types.CreateRoleReq) error {
 			}
 			_, err = l.svcCtx.SysRoleMenuModel.InsertRoleMenuTrans(l.ctx, tx, roleMenus)
 			if err != nil {
-				l.Logger.Errorf("插入关联菜单ID失败：%v", err)
+				l.Errorf("插入关联菜单ID失败：%v", err)
 				return xerr.NewCodeError(xerr.ErrInternal)
 			}
 		}
@@ -96,7 +103,7 @@ func (l *CreateRoleLogic) CreateRole(req *types.CreateRoleReq) error {
 			}
 			_, err = l.svcCtx.SysRoleApiModel.InsertRoleApiTrans(l.ctx, tx, roleApis)
 			if err != nil {
-				l.Logger.Errorf("插入关联菜单ID失败：%v", err)
+				l.Errorf("插入关联菜单ID失败：%v", err)
 				return xerr.NewCodeError(xerr.ErrInternal)
 			}
 		}
@@ -104,7 +111,7 @@ func (l *CreateRoleLogic) CreateRole(req *types.CreateRoleReq) error {
 		return nil
 	})
 	if err != nil {
-		l.Logger.Errorf("创建角色事务执行失败: %v", err)
+		l.Errorf("创建角色事务执行失败: %v", err)
 		return xerr.NewCodeError(xerr.ErrInternal)
 	}
 
@@ -115,7 +122,7 @@ func (l *CreateRoleLogic) CreateRole(req *types.CreateRoleReq) error {
 			rules = append(rules, []string{api.ApiPath, api.Method})
 		}
 		if err := casbinpkg.AddRolePolicies(l.svcCtx.Enforcer, req.RoleCode, rules); err != nil {
-			l.Logger.Errorf("同步Casbin策略失败（角色编码: %s）：%v", req.RoleCode, err)
+			l.Errorf("同步Casbin策略失败（角色编码: %s）：%v", req.RoleCode, err)
 		}
 	}
 

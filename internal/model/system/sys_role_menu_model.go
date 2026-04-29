@@ -55,9 +55,9 @@ func (m *customSysRoleMenuModel) InsertRoleMenuTrans(ctx context.Context, tx *go
 }
 
 func (m *customSysRoleMenuModel) DeleteRoleMenuByRoleIdTrans(ctx context.Context, tx *gorm.DB, roleId int64) error {
-	return tx.WithContext(ctx).Where("role_id = ?", roleId).Delete(&SysRoleMenu{}).Error
+	return tx.WithContext(ctx).Table("sys_role_menu").Where("role_id = ?", roleId).Delete(&SysRoleMenu{}).Error
 }
 
 func (m *customSysRoleMenuModel) DeleteRoleMenuByMenuIdTrans(ctx context.Context, tx *gorm.DB, menuId int64) error {
-	return tx.WithContext(ctx).Where("menu_id = ?", menuId).Delete(&SysRoleMenu{}).Error
+	return tx.WithContext(ctx).Table("sys_role_menu").Where("menu_id = ?", menuId).Delete(&SysRoleMenu{}).Error
 }

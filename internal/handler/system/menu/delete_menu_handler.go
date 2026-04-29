@@ -11,11 +11,13 @@ import (
 
 	"go-zero-admin/internal/logic/system/menu"
 	"go-zero-admin/internal/svc"
+
+	"github.com/zeromicro/go-zero/rest/pathvar"
 )
 
 func DeleteMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idStr := r.PathValue("id")
+		idStr := pathvar.Vars(r)["id"]
 		menuId, err := strconv.ParseInt(idStr, 10, 64)
 
 		if err != nil || menuId <= 0 {

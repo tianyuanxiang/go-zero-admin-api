@@ -84,6 +84,7 @@ func Fail(w http.ResponseWriter, r *http.Request, code int, msg string) {
 	httpx.OkJsonCtx(r.Context(), w, Response{
 		Code: code,
 		Msg:  msg,
+		Data: nil,
 	})
 }
 
@@ -93,6 +94,7 @@ func FailWithMsg(w http.ResponseWriter, r *http.Request, msg string) {
 	httpx.OkJsonCtx(r.Context(), w, Response{
 		Code: CodeParamError,
 		Msg:  msg,
+		Data: nil,
 	})
 }
 

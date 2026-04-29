@@ -21,7 +21,7 @@ type (
 		FindOneByRoleId(ctx context.Context, roleId int64) (*SysRole, error)
 		FindByIds(ctx context.Context, roleIds []int64) ([]*SysRole, error)
 		InsertRoleTrans(ctx context.Context, tx *gorm.DB, role *SysRole) (int64, error)
-		UpdateRoleTrans(ctx context.Context, tx *gorm.DB, role *SysRole) error
+		UpdateRoleTrans(ctx context.Context, id int64, updates map[string]interface{}) error
 		SoftDeleteRoleTrans(ctx context.Context, tx *gorm.DB, roleId int64) error
 	}
 
@@ -117,14 +117,9 @@ func (m *customSysRoleModel) SoftDeleteRoleTrans(ctx context.Context, tx *gorm.D
 	return result.Error
 }
 
-func (m *customSysRoleModel) UpdateRoleTrans(ctx context.Context, tx *gorm.DB, role *SysRole) error {
-	result := tx.WithContext(ctx).Table("sys_role").
-		Where("id = ? AND deleted_at IS NULL", role.Id).
-		Updates(map[string]interface{}{
-			"name":   role.Name,
-			"code":   role.Code,
-			"remark": role.Remark,
-			"sort":   role.Sort,
-		})
+func (m *customSysRoleModel) UpdateRoleTrans(ctx context.Context, id int64, updates map[string]interface{}) error {
+	result := m.db.WithContext(ctx).Table("sys_role").
+		Where("id = ? AND deleted_at IS NULL", id).
+		Updates(updates)
 	return result.Error
 }

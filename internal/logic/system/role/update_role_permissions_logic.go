@@ -5,6 +5,7 @@ package role
 
 import (
 	"context"
+	"go-zero-admin/internal/common"
 	systemmodel "go-zero-admin/internal/model/system"
 	casbinpkg "go-zero-admin/pkg/casbin"
 	"go-zero-admin/pkg/xerr"
@@ -64,6 +65,11 @@ func (l *UpdateRolePermissionsLogic) UpdateRolePermissions(req *types.UpdateRole
 			return xerr.NewCodeError(xerr.ErrInternal)
 		}
 		if len(req.MenuIds) > 0 {
+			req.MenuIds, err = common.CompleteMenuAncestors(l.ctx, l.svcCtx.SysMenuModel, req.MenuIds)
+			if err != nil {
+				l.Errorf("补全菜单祖先链失败：%v", err)
+				return xerr.NewCodeError(xerr.ErrInternal)
+			}
 			roleMenus := make([]systemmodel.SysRoleMenu, 0, len(req.MenuIds))
 			for _, menuId := range req.MenuIds {
 				roleMenus = append(roleMenus, systemmodel.SysRoleMenu{

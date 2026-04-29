@@ -44,9 +44,9 @@ type UpdateRolePermissionsReq struct {
 }
 
 type UpdateRoleReq struct {
-	Id       int64  `path:"id"` // 角色ID
-	RoleCode string `json:"roleCode"`
-	RoleName string `json:"roleName"` // 角色名称
-	Sort     int64  `json:"sort"`
-	Remark   string `json:"remark,optional"` // 备注
+	Id       int64   `path:"id"` // 角色ID
+	RoleCode *string `json:"roleCode,optional"`
+	RoleName *string `json:"roleName,optional"` // 角色名称
+	Sort     *int64  `json:"sort,optional"`
+	Remark   *string `json:"remark,optional"` // 备注
 }

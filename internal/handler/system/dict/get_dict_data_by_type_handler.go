@@ -11,12 +11,14 @@ import (
 
 	"go-zero-admin/internal/logic/system/dict"
 	"go-zero-admin/internal/svc"
+
+	"github.com/zeromicro/go-zero/rest/pathvar"
 )
 
 func GetDictDataByTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		idStr := r.PathValue("id")
+		idStr := pathvar.Vars(r)["id"]
 		dictTypeId, err := strconv.ParseInt(idStr, 10, 64)
 		if err != nil || dictTypeId <= 0 {
 			response.FailWithMsg(w, r, "字典类型ID格式错误")

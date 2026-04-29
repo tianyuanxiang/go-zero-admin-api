@@ -42,11 +42,11 @@ func (m *customSysRoleApiModel) InsertRoleApiTrans(ctx context.Context, tx *gorm
 }
 
 func (m *customSysRoleApiModel) DeleteRoleApiByRoleIdTrans(ctx context.Context, tx *gorm.DB, roleId int64) error {
-	return tx.WithContext(ctx).Where("role_id = ?", roleId).Delete(&SysRoleApi{}).Error
+	return tx.WithContext(ctx).Table("sys_role_api").Where("role_id = ?", roleId).Delete(&SysRoleApi{}).Error
 }
 
 func (m *customSysRoleApiModel) DeleteRoleApiByApiIdTrans(ctx context.Context, tx *gorm.DB, apiId int64) error {
-	return tx.WithContext(ctx).Where("api_id = ?", apiId).Delete(&SysRoleApi{}).Error
+	return tx.WithContext(ctx).Table("sys_role_api").Where("api_id = ?", apiId).Delete(&SysRoleApi{}).Error
 }
 
 // ListRoleIdsByApiId 根据接口ID查询所有关联的角色ID。
