@@ -4,9 +4,9 @@
 package file
 
 import (
+	"go-zero-admin/pkg/response"
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"go-zero-admin/internal/logic/system/file"
 	"go-zero-admin/internal/svc"
 )

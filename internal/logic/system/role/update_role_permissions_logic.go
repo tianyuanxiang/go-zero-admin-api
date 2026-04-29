@@ -31,6 +31,7 @@ func NewUpdateRolePermissionsLogic(ctx context.Context, svcCtx *svc.ServiceConte
 	}
 }
 
+// 更新角色权限
 func (l *UpdateRolePermissionsLogic) UpdateRolePermissions(req *types.UpdateRolePermissionsReq) error {
 	// 检查角色是否存在
 	existRole, err := l.svcCtx.SysRoleModel.FindOne(l.ctx, req.Id)
@@ -58,7 +59,7 @@ func (l *UpdateRolePermissionsLogic) UpdateRolePermissions(req *types.UpdateRole
 	// 2.开启事务
 	err = l.svcCtx.Orm.WithContext(l.ctx).Transaction(func(tx *gorm.DB) error {
 		// 2.1 先删后插：更新关联菜单
-		if err := l.svcCtx.SysRoleMenuModel.DeleteRoleMenuTrans(l.ctx, tx, req.Id); err != nil {
+		if err := l.svcCtx.SysRoleMenuModel.DeleteRoleMenuByRoleIdTrans(l.ctx, tx, req.Id); err != nil {
 			l.Logger.Errorf("删除角色[%d]旧菜单关联失败：%v", req.Id, err)
 			return xerr.NewCodeError(xerr.ErrInternal)
 		}
@@ -77,7 +78,7 @@ func (l *UpdateRolePermissionsLogic) UpdateRolePermissions(req *types.UpdateRole
 		}
 
 		// 2.2 先删后插：更新关联接口
-		if err := l.svcCtx.SysRoleApiModel.DeleteRoleApiTrans(l.ctx, tx, req.Id); err != nil {
+		if err := l.svcCtx.SysRoleApiModel.DeleteRoleApiByApiIdTrans(l.ctx, tx, req.Id); err != nil {
 			l.Logger.Errorf("删除角色[%d]旧接口关联失败：%v", req.Id, err)
 			return xerr.NewCodeError(xerr.ErrInternal)
 		}

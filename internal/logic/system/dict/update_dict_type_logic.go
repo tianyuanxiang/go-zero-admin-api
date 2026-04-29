@@ -30,7 +30,7 @@ func NewUpdateDictTypeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Up
 }
 
 func (l *UpdateDictTypeLogic) UpdateDictType(req *types.UpdateDictTypeReq) error {
-	_, err := l.svcCtx.SysDictTypeModel.FindOne(l.ctx, req.Id)
+	_, err := l.svcCtx.SysDictTypeModel.FindOne(l.ctx, int64(req.Id))
 	if err != nil {
 		if err == sqlx.ErrNotFound {
 			return xerr.NewCodeError(xerr.ErrNotFound)
@@ -39,7 +39,7 @@ func (l *UpdateDictTypeLogic) UpdateDictType(req *types.UpdateDictTypeReq) error
 	}
 
 	return l.svcCtx.SysDictTypeModel.Update(l.ctx, &system.SysDictType{
-		Id:     req.Id,
+		Id:     int64(req.Id),
 		Name:   req.DictName,
 		Code:   req.DictType,
 		Status: int64(req.Status),

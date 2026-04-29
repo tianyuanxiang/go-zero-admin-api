@@ -7,7 +7,7 @@ require (
 	github.com/casbin/gorm-adapter/v3 v3.30.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
-	github.com/jinzhu/gorm v1.9.16
+	github.com/lionsoul2014/ip2region/binding/golang v0.0.0-20260428110050-fedf5aaf0308
 	github.com/redis/go-redis/v9 v9.17.3
 	github.com/xuri/excelize/v2 v2.8.1
 	github.com/zeromicro/go-zero v1.10.0

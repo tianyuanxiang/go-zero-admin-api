@@ -17,6 +17,8 @@ func ExtractBrowser(userAgent string) string {
 		return "Safari"
 	case ContainsStr(uaLower, "msie") || ContainsStr(uaLower, "trident"):
 		return "IE"
+	case ContainsStr(uaLower, "postman"):
+		return "Postman"
 	default:
 		return "其他"
 	}
@@ -42,4 +44,9 @@ func ExtractOS(userAgent string) string {
 	default:
 		return "其他"
 	}
+}
+
+// todo: 获取ip所属地区
+func GetRegion(ip string) string {
+	return ""
 }

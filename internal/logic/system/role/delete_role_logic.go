@@ -53,12 +53,12 @@ func (l *DeleteRoleLogic) DeleteRole(roleId int64) error {
 		}
 
 		// 3. 清除角色与菜单的关联
-		if err = l.svcCtx.SysRoleMenuModel.DeleteRoleMenuTrans(l.ctx, tx, roleId); err != nil {
+		if err = l.svcCtx.SysRoleMenuModel.DeleteRoleMenuByRoleIdTrans(l.ctx, tx, roleId); err != nil {
 			l.Errorf("清除角色[%d]菜单关联失败：%v", roleId, err)
 		}
 
 		// 4.清除角色与接口的关联
-		if err = l.svcCtx.SysRoleApiModel.DeleteRoleApiTrans(l.ctx, tx, roleId); err != nil {
+		if err = l.svcCtx.SysRoleApiModel.DeleteRoleApiByRoleIdTrans(l.ctx, tx, roleId); err != nil {
 			l.Errorf("清除角色[%d]接口关联失败：%v", roleId, err)
 		}
 

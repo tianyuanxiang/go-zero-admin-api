@@ -4,12 +4,13 @@
 package role
 
 import (
+	"go-zero-admin/pkg/response"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"plating/internal/logic/system/role"
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/internal/logic/system/role"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 )
 
 func UpdateRoleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

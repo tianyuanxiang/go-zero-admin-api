@@ -4,11 +4,11 @@
 package menu
 
 import (
+	"go-zero-admin/pkg/response"
 	"net/http"
-	"plating/pkg/response"
 
-	"plating/internal/logic/system/menu"
-	"plating/internal/svc"
+	"go-zero-admin/internal/logic/system/menu"
+	"go-zero-admin/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )

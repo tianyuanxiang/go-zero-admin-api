@@ -1,8 +1,8 @@
 package common
 
 import (
-	systemmodel "plating/internal/model/system"
-	"plating/internal/types"
+	systemmodel "go-zero-admin/internal/model/system"
+	"go-zero-admin/internal/types"
 )
 
 // buildMenuTree 将扁平菜单列表递归构建为树形结构。

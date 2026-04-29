@@ -4,13 +4,13 @@
 package menu
 
 import (
+	"go-zero-admin/pkg/response"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
-	"plating/pkg/response"
-	"plating/pkg/xerr"
 	"strconv"
 
-	"plating/internal/logic/system/menu"
-	"plating/internal/svc"
+	"go-zero-admin/internal/logic/system/menu"
+	"go-zero-admin/internal/svc"
 )
 
 func DeleteMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

@@ -90,26 +90,41 @@ func (l *LoginLogic) Login(req *types.LoginReq, r *http.Request) (resp *types.Lo
 		return nil, xerr.NewCodeError(xerr.ErrInternal)
 	}
 
-	roleCodes := make([]string, len(roleIds)+1)
+	roleCodes := make([]string, 0, len(roleIds)+1)
+	var isAdmin bool
 	for _, roleId := range roleIds {
 		role, roleErr := l.svcCtx.SysRoleModel.FindOneByRoleId(l.ctx, roleId)
 		if roleErr != nil || role == nil || role.Status != 1 {
 			continue
 		}
+		if role.Code == "admin" {
+			isAdmin = true
+			roleCodes = append(roleCodes, role.Code)
+			break
+		}
 		roleCodes = append(roleCodes, role.Code)
 	}
 
 	// 6. 查询用户的菜单权限（合并所有角色的菜单）
-	menuIds, err := l.svcCtx.SysRoleMenuModel.GetMenuIdsByRoleIds(l.ctx, roleIds)
-	if err != nil {
-		l.Logger.Errorf("查询用户菜单失败：%v", err)
-		menuIds = []int64{}
-	}
-
-	menus, err := l.svcCtx.SysMenuModel.ListByIds(l.ctx, menuIds)
-	if err != nil {
-		l.Logger.Errorf("查询菜单详情失败：%v", err)
-		menus = []*systemmodel.SysMenu{}
+	var menus []*systemmodel.SysMenu // 创建切片
+	if isAdmin {
+		// 直接查询所有菜单
+		menus, err = l.svcCtx.SysMenuModel.ListAll(l.ctx)
+		if err != nil {
+			l.Logger.Errorf("查询超管所有菜单失败：%v", err)
+			menus = []*systemmodel.SysMenu{}
+		}
+	} else {
+		menuIds, err := l.svcCtx.SysRoleMenuModel.GetMenuIdsByRoleIds(l.ctx, roleIds)
+		if err != nil {
+			l.Logger.Errorf("查询用户菜单失败：%v", err)
+			menuIds = []int64{}
+		}
+		menus, err = l.svcCtx.SysMenuModel.ListByIds(l.ctx, menuIds)
+		if err != nil {
+			l.Logger.Errorf("查询菜单列表失败：%v", err)
+			menus = []*systemmodel.SysMenu{}
+		}
 	}
 
 	// 将菜单列表构建为树形结构
@@ -125,6 +140,8 @@ func (l *LoginLogic) Login(req *types.LoginReq, r *http.Request) (resp *types.Lo
 		UserInfo: types.UserInfo{
 			UserId:   user.Id,
 			Username: user.Username,
+			Email:    user.Email,
+			Phone:    user.Phone,
 			Nickname: user.Nickname,
 			Avatar:   user.Avatar,
 			Roles:    roleCodes,

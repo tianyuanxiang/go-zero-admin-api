@@ -30,7 +30,7 @@ func NewUpdateDictDataLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Up
 }
 
 func (l *UpdateDictDataLogic) UpdateDictData(req *types.UpdateDictDataReq) error {
-	_, err := l.svcCtx.SysDictDataModel.FindOne(l.ctx, req.Id)
+	_, err := l.svcCtx.SysDictDataModel.FindOne(l.ctx, int64(req.Id))
 	if err != nil {
 		if err == sqlx.ErrNotFound {
 			return xerr.NewCodeError(xerr.ErrNotFound)
@@ -39,7 +39,7 @@ func (l *UpdateDictDataLogic) UpdateDictData(req *types.UpdateDictDataReq) error
 	}
 
 	return l.svcCtx.SysDictDataModel.Update(l.ctx, &system.SysDictData{
-		Id:        req.Id,
+		Id:        int64(req.Id),
 		TypeId:    int64(req.DictTypeId),
 		Label:     req.DictLabel,
 		DictValue: req.DictValue,

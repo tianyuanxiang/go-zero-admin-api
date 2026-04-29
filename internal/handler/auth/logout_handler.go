@@ -4,12 +4,12 @@
 package auth
 
 import (
+	"go-zero-admin/pkg/response"
 	"net/http"
-	"plating/pkg/response"
 	"strings"
 
-	"plating/internal/logic/auth"
-	"plating/internal/svc"
+	"go-zero-admin/internal/logic/auth"
+	"go-zero-admin/internal/svc"
 )
 
 func LogoutHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

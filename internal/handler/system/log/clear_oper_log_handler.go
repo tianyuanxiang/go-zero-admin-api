@@ -5,6 +5,7 @@ package log
 
 import (
 	"go-zero-admin/pkg/response"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
 	"strconv"
 
@@ -24,7 +25,12 @@ func ClearOperLogHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := log.NewClearOperLogLogic(r.Context(), svcCtx)
 		err = l.ClearOperLog(logId)
 		if err != nil {
-			response.FailWithMsg(w, r, err.Error())
+			if codeErr, ok := err.(*xerr.CodeError); ok {
+				response.Fail(w, r, codeErr.Code, codeErr.Msg)
+				return
+			}
+			response.FailInternal(w, r)
+			return
 		} else {
 			response.OK(w, r)
 		}

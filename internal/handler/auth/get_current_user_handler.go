@@ -4,12 +4,12 @@
 package auth
 
 import (
+	"go-zero-admin/pkg/response"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
-	"plating/pkg/response"
-	"plating/pkg/xerr"
 
-	"plating/internal/logic/auth"
-	"plating/internal/svc"
+	"go-zero-admin/internal/logic/auth"
+	"go-zero-admin/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )

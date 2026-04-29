@@ -12,9 +12,9 @@ import (
 
 	"github.com/zeromicro/go-zero/core/logx"
 
-	"plating/internal/config"
-	"plating/pkg/jwtx"
-	"plating/pkg/response"
+	"go-zero-admin/internal/config"
+	"go-zero-admin/pkg/jwtx"
+	"go-zero-admin/pkg/response"
 )
 
 // ContextKey 自定义Context键类型，避免与其他包的键冲突。

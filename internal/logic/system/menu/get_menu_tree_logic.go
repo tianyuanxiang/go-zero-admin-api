@@ -27,6 +27,6 @@ func NewGetMenuTreeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetMe
 }
 
 func (l *GetMenuTreeLogic) GetMenuTree() (resp *types.MenuTreeResp, err error) {
-
+	
 	return
 }

@@ -4,14 +4,14 @@
 package menu
 
 import (
+	"go-zero-admin/pkg/response"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
-	"plating/pkg/response"
-	"plating/pkg/xerr"
 	"strconv"
 
-	"plating/internal/logic/system/menu"
-	"plating/internal/svc"
-	"plating/internal/types"
+	"go-zero-admin/internal/logic/system/menu"
+	"go-zero-admin/internal/svc"
+	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )

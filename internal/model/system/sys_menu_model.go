@@ -16,6 +16,7 @@ type (
 	SysMenuModel interface {
 		sysMenuModel
 		ListByIds(ctx context.Context, ids []int64) ([]*SysMenu, error)
+		ListAll(ctx context.Context) ([]*SysMenu, error)
 		// HasChildren 检查是否有子菜单
 		HasChildren(ctx context.Context, id int64) (bool, error)
 		SoftDeleteTrans(ctx context.Context, tx *gorm.DB, id int64) error
@@ -50,6 +51,17 @@ func (m *customSysMenuModel) ListByIds(ctx context.Context, ids []int64) ([]*Sys
 	return menus, nil
 }
 
+func (m *customSysMenuModel) ListAll(ctx context.Context) ([]*SysMenu, error) {
+	var menus []*SysMenu
+	result := m.db.WithContext(ctx).Table("sys_menu").
+		Where("deleted_at IS NULL").
+		Order("parent_id ASC, sort ASC").
+		Find(&menus)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return menus, nil
+}
 func (m *customSysMenuModel) HasChildren(ctx context.Context, id int64) (bool, error) {
 	var count int64
 

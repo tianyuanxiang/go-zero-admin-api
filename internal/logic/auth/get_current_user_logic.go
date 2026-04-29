@@ -54,26 +54,41 @@ func (l *GetCurrentUserLogic) GetCurrentUser() (resp *types.UserInfoResp, err er
 		return nil, xerr.NewCodeError(xerr.ErrInternal)
 	}
 
-	roleCodes := make([]string, len(roleIds))
+	roleCodes := make([]string, 0, len(roleIds))
+	var isAdmin bool
+
 	for _, roleId := range roleIds {
 		role, roleErr := l.svcCtx.SysRoleModel.FindOneByRoleId(l.ctx, roleId)
 		if roleErr != nil || role == nil || role.Status != 1 {
 			continue
 		}
+		if role.Code == "admin" {
+			isAdmin = true
+			roleCodes = append(roleCodes, role.Code)
+			break
+		}
 		roleCodes = append(roleCodes, role.Code)
 	}
 
-	// 查询菜单权限
-	menuIds, err := l.svcCtx.SysRoleMenuModel.GetMenuIdsByRoleIds(l.ctx, roleIds)
-	if err != nil {
-		l.Errorf("查询用户菜单失败：%v", err)
-		menuIds = []int64{}
-	}
-
-	menus, err := l.svcCtx.SysMenuModel.ListByIds(l.ctx, menuIds)
-	if err != nil {
-		l.Errorf("查询菜单详情失败：%v", err)
-		menus = []*systemmodel.SysMenu{}
+	var menus []*systemmodel.SysMenu // 创建切片
+	if isAdmin {
+		// 直接查询所有菜单
+		menus, err = l.svcCtx.SysMenuModel.ListAll(l.ctx)
+		if err != nil {
+			l.Logger.Errorf("查询超管所有菜单失败：%v", err)
+			menus = []*systemmodel.SysMenu{}
+		}
+	} else {
+		menuIds, err := l.svcCtx.SysRoleMenuModel.GetMenuIdsByRoleIds(l.ctx, roleIds)
+		if err != nil {
+			l.Logger.Errorf("查询用户菜单失败：%v", err)
+			menuIds = []int64{}
+		}
+		menus, err = l.svcCtx.SysMenuModel.ListByIds(l.ctx, menuIds)
+		if err != nil {
+			l.Logger.Errorf("查询菜单列表失败：%v", err)
+			menus = []*systemmodel.SysMenu{}
+		}
 	}
 
 	menuTree := common.BuildMenuTree(menus, 0)
@@ -82,6 +97,10 @@ func (l *GetCurrentUserLogic) GetCurrentUser() (resp *types.UserInfoResp, err er
 		UserInfo: types.UserInfo{
 			UserId:   user.Id,
 			Username: user.Username,
+			Nickname: user.Nickname,
+			Email:    user.Email,
+			Phone:    user.Phone,
+			Avatar:   user.Avatar,
 			Roles:    roleCodes,
 			Menus:    menuTree,
 		},

@@ -4,10 +4,10 @@
 package middleware
 
 import (
+	"go-zero-admin/pkg/response"
 	"net/http"
-	"plating/pkg/response"
 
-	systemmodel "plating/internal/model/system"
+	systemmodel "go-zero-admin/internal/model/system"
 
 	casbinv2 "github.com/casbin/casbin/v2"
 	"github.com/zeromicro/go-zero/core/logx"

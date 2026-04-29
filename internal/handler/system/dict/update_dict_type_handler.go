@@ -29,7 +29,7 @@ func UpdateDictTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.FailWithMsg(w, r, err.Error())
 			return
 		}
-		req.Id = dictTypeId
+		req.Id = int(dictTypeId)
 		l := dict.NewUpdateDictTypeLogic(r.Context(), svcCtx)
 		err = l.UpdateDictType(&req)
 		if err != nil {
