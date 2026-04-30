@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
 )
@@ -23,9 +21,6 @@ var (
 	sysApiRows                = strings.Join(sysApiFieldNames, ",")
 	sysApiRowsExpectAutoSet   = strings.Join(stringx.Remove(sysApiFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	sysApiRowsWithPlaceHolder = strings.Join(stringx.Remove(sysApiFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
-
-	cachePlatingSysApiIdPrefix            = "cache:plating:sysApi:id:"
-	cachePlatingSysApiApiPathMethodPrefix = "cache:plating:sysApi:apiPath:method:"
 )
 
 type (
@@ -38,7 +33,7 @@ type (
 	}
 
 	defaultSysApiModel struct {
-		sqlc.CachedConn
+		conn  sqlx.SqlConn
 		table string
 	}
 
@@ -55,39 +50,27 @@ type (
 	}
 )
 
-func newSysApiModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) *defaultSysApiModel {
+func newSysApiModel(conn sqlx.SqlConn) *defaultSysApiModel {
 	return &defaultSysApiModel{
-		CachedConn: sqlc.NewConn(conn, c, opts...),
-		table:      "`sys_api`",
+		conn:  conn,
+		table: "`sys_api`",
 	}
 }
 
 func (m *defaultSysApiModel) Delete(ctx context.Context, id int64) error {
-	data, err := m.FindOne(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	platingSysApiApiPathMethodKey := fmt.Sprintf("%s%v:%v", cachePlatingSysApiApiPathMethodPrefix, data.ApiPath, data.Method)
-	platingSysApiIdKey := fmt.Sprintf("%s%v", cachePlatingSysApiIdPrefix, id)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, id)
-	}, platingSysApiApiPathMethodKey, platingSysApiIdKey)
+	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultSysApiModel) FindOne(ctx context.Context, id int64) (*SysApi, error) {
-	platingSysApiIdKey := fmt.Sprintf("%s%v", cachePlatingSysApiIdPrefix, id)
+	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysApiRows, m.table)
 	var resp SysApi
-	err := m.QueryRowCtx(ctx, &resp, platingSysApiIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysApiRows, m.table)
-		return conn.QueryRowCtx(ctx, v, query, id)
-	})
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -95,19 +78,13 @@ func (m *defaultSysApiModel) FindOne(ctx context.Context, id int64) (*SysApi, er
 }
 
 func (m *defaultSysApiModel) FindOneByApiPathMethod(ctx context.Context, apiPath string, method string) (*SysApi, error) {
-	platingSysApiApiPathMethodKey := fmt.Sprintf("%s%v:%v", cachePlatingSysApiApiPathMethodPrefix, apiPath, method)
 	var resp SysApi
-	err := m.QueryRowIndexCtx(ctx, &resp, platingSysApiApiPathMethodKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `api_path` = ? and `method` = ? limit 1", sysApiRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, apiPath, method); err != nil {
-			return nil, err
-		}
-		return resp.Id, nil
-	}, m.queryPrimary)
+	query := fmt.Sprintf("select %s from %s where `api_path` = ? and `method` = ? limit 1", sysApiRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, apiPath, method)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -115,37 +92,15 @@ func (m *defaultSysApiModel) FindOneByApiPathMethod(ctx context.Context, apiPath
 }
 
 func (m *defaultSysApiModel) Insert(ctx context.Context, data *SysApi) (sql.Result, error) {
-	platingSysApiApiPathMethodKey := fmt.Sprintf("%s%v:%v", cachePlatingSysApiApiPathMethodPrefix, data.ApiPath, data.Method)
-	platingSysApiIdKey := fmt.Sprintf("%s%v", cachePlatingSysApiIdPrefix, data.Id)
-	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, sysApiRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.ApiPath, data.Method, data.ApiGroup, data.Description, data.DeletedAt, data.ApiName)
-	}, platingSysApiApiPathMethodKey, platingSysApiIdKey)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, sysApiRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.ApiPath, data.Method, data.ApiGroup, data.Description, data.DeletedAt, data.ApiName)
 	return ret, err
 }
 
 func (m *defaultSysApiModel) Update(ctx context.Context, newData *SysApi) error {
-	data, err := m.FindOne(ctx, newData.Id)
-	if err != nil {
-		return err
-	}
-
-	platingSysApiApiPathMethodKey := fmt.Sprintf("%s%v:%v", cachePlatingSysApiApiPathMethodPrefix, data.ApiPath, data.Method)
-	platingSysApiIdKey := fmt.Sprintf("%s%v", cachePlatingSysApiIdPrefix, data.Id)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysApiRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.ApiPath, newData.Method, newData.ApiGroup, newData.Description, newData.DeletedAt, newData.ApiName, newData.Id)
-	}, platingSysApiApiPathMethodKey, platingSysApiIdKey)
+	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysApiRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, newData.ApiPath, newData.Method, newData.ApiGroup, newData.Description, newData.DeletedAt, newData.ApiName, newData.Id)
 	return err
-}
-
-func (m *defaultSysApiModel) formatPrimary(primary any) string {
-	return fmt.Sprintf("%s%v", cachePlatingSysApiIdPrefix, primary)
-}
-
-func (m *defaultSysApiModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysApiRows, m.table)
-	return conn.QueryRowCtx(ctx, v, query, primary)
 }
 
 func (m *defaultSysApiModel) tableName() string {

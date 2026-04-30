@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
 )
@@ -23,9 +21,6 @@ var (
 	sysUserRows                = strings.Join(sysUserFieldNames, ",")
 	sysUserRowsExpectAutoSet   = strings.Join(stringx.Remove(sysUserFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	sysUserRowsWithPlaceHolder = strings.Join(stringx.Remove(sysUserFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
-
-	cachePlatingSysUserIdPrefix       = "cache:plating:sysUser:id:"
-	cachePlatingSysUserUsernamePrefix = "cache:plating:sysUser:username:"
 )
 
 type (
@@ -38,7 +33,7 @@ type (
 	}
 
 	defaultSysUserModel struct {
-		sqlc.CachedConn
+		conn  sqlx.SqlConn
 		table string
 	}
 
@@ -58,39 +53,27 @@ type (
 	}
 )
 
-func newSysUserModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) *defaultSysUserModel {
+func newSysUserModel(conn sqlx.SqlConn) *defaultSysUserModel {
 	return &defaultSysUserModel{
-		CachedConn: sqlc.NewConn(conn, c, opts...),
-		table:      "`sys_user`",
+		conn:  conn,
+		table: "`sys_user`",
 	}
 }
 
 func (m *defaultSysUserModel) Delete(ctx context.Context, id int64) error {
-	data, err := m.FindOne(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	platingSysUserIdKey := fmt.Sprintf("%s%v", cachePlatingSysUserIdPrefix, id)
-	platingSysUserUsernameKey := fmt.Sprintf("%s%v", cachePlatingSysUserUsernamePrefix, data.Username)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, id)
-	}, platingSysUserIdKey, platingSysUserUsernameKey)
+	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultSysUserModel) FindOne(ctx context.Context, id int64) (*SysUser, error) {
-	platingSysUserIdKey := fmt.Sprintf("%s%v", cachePlatingSysUserIdPrefix, id)
+	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysUserRows, m.table)
 	var resp SysUser
-	err := m.QueryRowCtx(ctx, &resp, platingSysUserIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysUserRows, m.table)
-		return conn.QueryRowCtx(ctx, v, query, id)
-	})
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -98,19 +81,13 @@ func (m *defaultSysUserModel) FindOne(ctx context.Context, id int64) (*SysUser, 
 }
 
 func (m *defaultSysUserModel) FindOneByUsername(ctx context.Context, username string) (*SysUser, error) {
-	platingSysUserUsernameKey := fmt.Sprintf("%s%v", cachePlatingSysUserUsernamePrefix, username)
 	var resp SysUser
-	err := m.QueryRowIndexCtx(ctx, &resp, platingSysUserUsernameKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `username` = ? limit 1", sysUserRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, username); err != nil {
-			return nil, err
-		}
-		return resp.Id, nil
-	}, m.queryPrimary)
+	query := fmt.Sprintf("select %s from %s where `username` = ? limit 1", sysUserRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, username)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -118,37 +95,15 @@ func (m *defaultSysUserModel) FindOneByUsername(ctx context.Context, username st
 }
 
 func (m *defaultSysUserModel) Insert(ctx context.Context, data *SysUser) (sql.Result, error) {
-	platingSysUserIdKey := fmt.Sprintf("%s%v", cachePlatingSysUserIdPrefix, data.Id)
-	platingSysUserUsernameKey := fmt.Sprintf("%s%v", cachePlatingSysUserUsernamePrefix, data.Username)
-	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysUserRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Username, data.Password, data.Nickname, data.Email, data.Phone, data.Avatar, data.Status, data.Remark, data.DeletedAt)
-	}, platingSysUserIdKey, platingSysUserUsernameKey)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysUserRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Username, data.Password, data.Nickname, data.Email, data.Phone, data.Avatar, data.Status, data.Remark, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultSysUserModel) Update(ctx context.Context, newData *SysUser) error {
-	data, err := m.FindOne(ctx, newData.Id)
-	if err != nil {
-		return err
-	}
-
-	platingSysUserIdKey := fmt.Sprintf("%s%v", cachePlatingSysUserIdPrefix, data.Id)
-	platingSysUserUsernameKey := fmt.Sprintf("%s%v", cachePlatingSysUserUsernamePrefix, data.Username)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysUserRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.Username, newData.Password, newData.Nickname, newData.Email, newData.Phone, newData.Avatar, newData.Status, newData.Remark, newData.DeletedAt, newData.Id)
-	}, platingSysUserIdKey, platingSysUserUsernameKey)
+	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysUserRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Username, newData.Password, newData.Nickname, newData.Email, newData.Phone, newData.Avatar, newData.Status, newData.Remark, newData.DeletedAt, newData.Id)
 	return err
-}
-
-func (m *defaultSysUserModel) formatPrimary(primary any) string {
-	return fmt.Sprintf("%s%v", cachePlatingSysUserIdPrefix, primary)
-}
-
-func (m *defaultSysUserModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysUserRows, m.table)
-	return conn.QueryRowCtx(ctx, v, query, primary)
 }
 
 func (m *defaultSysUserModel) tableName() string {

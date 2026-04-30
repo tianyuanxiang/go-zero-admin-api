@@ -31,7 +31,7 @@ type (
 // NewSysRoleApiModel returns a model for the database table.
 func NewSysRoleApiModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts ...cache.Option) SysRoleApiModel {
 	return &customSysRoleApiModel{
-		defaultSysRoleApiModel: newSysRoleApiModel(conn, c, opts...),
+		defaultSysRoleApiModel: newSysRoleApiModel(conn),
 		db:                     db,
 	}
 }

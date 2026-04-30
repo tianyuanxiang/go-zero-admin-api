@@ -40,6 +40,10 @@ func (l *UpdateRoleLogic) UpdateRole(req *types.UpdateRoleReq) error {
 		return xerr.NewCodeError(xerr.ErrInternal)
 	}
 
+	if existRole.DeletedAt.Valid {
+		return xerr.NewCodeError(xerr.ErrRoleNotFound)
+	}
+
 	// 如果修改了角色编码，检查新编码是否与其他角色冲突
 	if req.RoleCode != nil && existRole.Code != *req.RoleCode {
 		conflictRole, cErr := l.svcCtx.SysRoleModel.FindOneByCode(l.ctx, *req.RoleCode)

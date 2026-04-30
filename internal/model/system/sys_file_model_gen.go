@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
 )
@@ -23,8 +21,6 @@ var (
 	sysFileRows                = strings.Join(sysFileFieldNames, ",")
 	sysFileRowsExpectAutoSet   = strings.Join(stringx.Remove(sysFileFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	sysFileRowsWithPlaceHolder = strings.Join(stringx.Remove(sysFileFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
-
-	cachePlatingSysFileIdPrefix = "cache:plating:sysFile:id:"
 )
 
 type (
@@ -36,7 +32,7 @@ type (
 	}
 
 	defaultSysFileModel struct {
-		sqlc.CachedConn
+		conn  sqlx.SqlConn
 		table string
 	}
 
@@ -54,33 +50,27 @@ type (
 	}
 )
 
-func newSysFileModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) *defaultSysFileModel {
+func newSysFileModel(conn sqlx.SqlConn) *defaultSysFileModel {
 	return &defaultSysFileModel{
-		CachedConn: sqlc.NewConn(conn, c, opts...),
-		table:      "`sys_file`",
+		conn:  conn,
+		table: "`sys_file`",
 	}
 }
 
 func (m *defaultSysFileModel) Delete(ctx context.Context, id int64) error {
-	platingSysFileIdKey := fmt.Sprintf("%s%v", cachePlatingSysFileIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, id)
-	}, platingSysFileIdKey)
+	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultSysFileModel) FindOne(ctx context.Context, id int64) (*SysFile, error) {
-	platingSysFileIdKey := fmt.Sprintf("%s%v", cachePlatingSysFileIdPrefix, id)
+	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysFileRows, m.table)
 	var resp SysFile
-	err := m.QueryRowCtx(ctx, &resp, platingSysFileIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysFileRows, m.table)
-		return conn.QueryRowCtx(ctx, v, query, id)
-	})
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -88,30 +78,15 @@ func (m *defaultSysFileModel) FindOne(ctx context.Context, id int64) (*SysFile, 
 }
 
 func (m *defaultSysFileModel) Insert(ctx context.Context, data *SysFile) (sql.Result, error) {
-	platingSysFileIdKey := fmt.Sprintf("%s%v", cachePlatingSysFileIdPrefix, data.Id)
-	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysFileRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Filename, data.OriginName, data.FilePath, data.FileUrl, data.FileSize, data.FileType, data.UploaderId, data.DeletedAt)
-	}, platingSysFileIdKey)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysFileRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Filename, data.OriginName, data.FilePath, data.FileUrl, data.FileSize, data.FileType, data.UploaderId, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultSysFileModel) Update(ctx context.Context, data *SysFile) error {
-	platingSysFileIdKey := fmt.Sprintf("%s%v", cachePlatingSysFileIdPrefix, data.Id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysFileRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.Filename, data.OriginName, data.FilePath, data.FileUrl, data.FileSize, data.FileType, data.UploaderId, data.DeletedAt, data.Id)
-	}, platingSysFileIdKey)
+	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysFileRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, data.Filename, data.OriginName, data.FilePath, data.FileUrl, data.FileSize, data.FileType, data.UploaderId, data.DeletedAt, data.Id)
 	return err
-}
-
-func (m *defaultSysFileModel) formatPrimary(primary any) string {
-	return fmt.Sprintf("%s%v", cachePlatingSysFileIdPrefix, primary)
-}
-
-func (m *defaultSysFileModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysFileRows, m.table)
-	return conn.QueryRowCtx(ctx, v, query, primary)
 }
 
 func (m *defaultSysFileModel) tableName() string {

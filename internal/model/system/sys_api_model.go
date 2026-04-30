@@ -31,7 +31,7 @@ type (
 // NewSysApiModel returns a model for the database table.
 func NewSysApiModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts ...cache.Option) SysApiModel {
 	return &customSysApiModel{
-		defaultSysApiModel: newSysApiModel(conn, c, opts...),
+		defaultSysApiModel: newSysApiModel(conn),
 		db:                 db,
 	}
 }

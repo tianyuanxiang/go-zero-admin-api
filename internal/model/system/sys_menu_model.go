@@ -20,6 +20,9 @@ type (
 		// HasChildren 检查是否有子菜单
 		HasChildren(ctx context.Context, id int64) (bool, error)
 		SoftDeleteTrans(ctx context.Context, tx *gorm.DB, id int64) error
+		UpdateMenuTrans(ctx context.Context, tx *gorm.DB, id int64, updates map[string]interface{}) error
+		BatchUpdateMenuStatus(ctx context.Context, tx *gorm.DB, ids []int64, status int) error
+		BatchUpdateMenuVisible(ctx context.Context, tx *gorm.DB, ids []int64, visable int) error
 	}
 
 	customSysMenuModel struct {
@@ -30,7 +33,7 @@ type (
 
 func NewSysMenuModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts ...cache.Option) SysMenuModel {
 	return &customSysMenuModel{
-		defaultSysMenuModel: newSysMenuModel(conn, c, opts...),
+		defaultSysMenuModel: newSysMenuModel(conn),
 		db:                  db,
 	}
 }
@@ -82,4 +85,23 @@ func (m *customSysMenuModel) SoftDeleteTrans(ctx context.Context, tx *gorm.DB, i
 			Time:  time.Now(),
 			Valid: false,
 		}).Error
+}
+
+func (m *customSysMenuModel) UpdateMenuTrans(ctx context.Context, tx *gorm.DB, id int64, updates map[string]interface{}) error {
+	result := tx.WithContext(ctx).Table("sys_menu").
+		Where("id = ? AND deleted_at IS NULL", id).
+		Updates(updates)
+	return result.Error
+}
+
+func (m *customSysMenuModel) BatchUpdateMenuStatus(ctx context.Context, tx *gorm.DB, ids []int64, status int) error {
+	return tx.WithContext(ctx).Table("sys_menu").
+		Where("id IN ? AND deleted_at IS NULL", ids).
+		Update("status", status).Error
+}
+
+func (m *customSysMenuModel) BatchUpdateMenuVisible(ctx context.Context, tx *gorm.DB, ids []int64, visible int) error {
+	return tx.WithContext(ctx).Table("sys_menu").
+		Where("id IN ? AND deleted_at IS NULL", ids).
+		Update("visible", visible).Error
 }

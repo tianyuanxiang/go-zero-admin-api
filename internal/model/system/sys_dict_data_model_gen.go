@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
 )
@@ -23,8 +21,6 @@ var (
 	sysDictDataRows                = strings.Join(sysDictDataFieldNames, ",")
 	sysDictDataRowsExpectAutoSet   = strings.Join(stringx.Remove(sysDictDataFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	sysDictDataRowsWithPlaceHolder = strings.Join(stringx.Remove(sysDictDataFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
-
-	cachePlatingSysDictDataIdPrefix = "cache:plating:sysDictData:id:"
 )
 
 type (
@@ -36,7 +32,7 @@ type (
 	}
 
 	defaultSysDictDataModel struct {
-		sqlc.CachedConn
+		conn  sqlx.SqlConn
 		table string
 	}
 
@@ -54,33 +50,27 @@ type (
 	}
 )
 
-func newSysDictDataModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) *defaultSysDictDataModel {
+func newSysDictDataModel(conn sqlx.SqlConn) *defaultSysDictDataModel {
 	return &defaultSysDictDataModel{
-		CachedConn: sqlc.NewConn(conn, c, opts...),
-		table:      "`sys_dict_data`",
+		conn:  conn,
+		table: "`sys_dict_data`",
 	}
 }
 
 func (m *defaultSysDictDataModel) Delete(ctx context.Context, id int64) error {
-	platingSysDictDataIdKey := fmt.Sprintf("%s%v", cachePlatingSysDictDataIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, id)
-	}, platingSysDictDataIdKey)
+	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultSysDictDataModel) FindOne(ctx context.Context, id int64) (*SysDictData, error) {
-	platingSysDictDataIdKey := fmt.Sprintf("%s%v", cachePlatingSysDictDataIdPrefix, id)
+	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysDictDataRows, m.table)
 	var resp SysDictData
-	err := m.QueryRowCtx(ctx, &resp, platingSysDictDataIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysDictDataRows, m.table)
-		return conn.QueryRowCtx(ctx, v, query, id)
-	})
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -88,30 +78,15 @@ func (m *defaultSysDictDataModel) FindOne(ctx context.Context, id int64) (*SysDi
 }
 
 func (m *defaultSysDictDataModel) Insert(ctx context.Context, data *SysDictData) (sql.Result, error) {
-	platingSysDictDataIdKey := fmt.Sprintf("%s%v", cachePlatingSysDictDataIdPrefix, data.Id)
-	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, sysDictDataRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.TypeId, data.Label, data.DictValue, data.Sort, data.Status, data.Remark, data.DeletedAt)
-	}, platingSysDictDataIdKey)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, sysDictDataRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.TypeId, data.Label, data.DictValue, data.Sort, data.Status, data.Remark, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultSysDictDataModel) Update(ctx context.Context, data *SysDictData) error {
-	platingSysDictDataIdKey := fmt.Sprintf("%s%v", cachePlatingSysDictDataIdPrefix, data.Id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysDictDataRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.TypeId, data.Label, data.DictValue, data.Sort, data.Status, data.Remark, data.DeletedAt, data.Id)
-	}, platingSysDictDataIdKey)
+	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysDictDataRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, data.TypeId, data.Label, data.DictValue, data.Sort, data.Status, data.Remark, data.DeletedAt, data.Id)
 	return err
-}
-
-func (m *defaultSysDictDataModel) formatPrimary(primary any) string {
-	return fmt.Sprintf("%s%v", cachePlatingSysDictDataIdPrefix, primary)
-}
-
-func (m *defaultSysDictDataModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysDictDataRows, m.table)
-	return conn.QueryRowCtx(ctx, v, query, primary)
 }
 
 func (m *defaultSysDictDataModel) tableName() string {

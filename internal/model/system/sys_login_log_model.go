@@ -37,7 +37,7 @@ type (
 // NewSysLoginLogModel returns a model for the database table.
 func NewSysLoginLogModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts ...cache.Option) SysLoginLogModel {
 	return &customSysLoginLogModel{
-		defaultSysLoginLogModel: newSysLoginLogModel(conn, c, opts...),
+		defaultSysLoginLogModel: newSysLoginLogModel(conn),
 		db:                      db,
 	}
 }

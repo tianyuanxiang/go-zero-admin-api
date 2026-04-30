@@ -27,7 +27,7 @@ type (
 
 func NewSysRoleMenuModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts ...cache.Option) SysRoleMenuModel {
 	return &customSysRoleMenuModel{
-		defaultSysRoleMenuModel: newSysRoleMenuModel(conn, c, opts...),
+		defaultSysRoleMenuModel: newSysRoleMenuModel(conn),
 		db:                      db,
 	}
 }

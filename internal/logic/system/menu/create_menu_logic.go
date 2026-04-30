@@ -7,10 +7,11 @@ import (
 	"context"
 	"go-zero-admin/pkg/xerr"
 
-	"github.com/zeromicro/go-zero/core/logx"
 	systemmodel "go-zero-admin/internal/model/system"
 	"go-zero-admin/internal/svc"
 	"go-zero-admin/internal/types"
+
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type CreateMenuLogic struct {
@@ -28,6 +29,22 @@ func NewCreateMenuLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Create
 }
 
 func (l *CreateMenuLogic) CreateMenu(req *types.CreateMenuReq) error {
+
+	// 确认父菜单是否存在
+	if req.ParentId > 0 {
+		menus, err := l.svcCtx.SysMenuModel.ListByIds(l.ctx, []int64{req.ParentId})
+		if err != nil {
+			l.Errorf("查询父菜单[%d]失败：%v", req.ParentId, err)
+			return xerr.NewCodeError(xerr.ErrInternal)
+		}
+		if len(menus) == 0 {
+			return xerr.NewCodeErrorMsg(xerr.ErrMenuNotFound, "父菜单不存在或已被删除")
+		}
+		// 额外校验：父菜单不能是按钮类型
+		if menus[0].MenuType == 2 {
+			return xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "按钮类型的菜单不能作为父菜单")
+		}
+	}
 	_, err := l.svcCtx.SysMenuModel.Insert(l.ctx, &systemmodel.SysMenu{
 		ParentId:   req.ParentId,
 		Name:       req.MenuName,

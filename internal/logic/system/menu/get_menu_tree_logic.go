@@ -5,7 +5,7 @@ package menu
 
 import (
 	"context"
-
+	"go-zero-admin/internal/common"
 	"go-zero-admin/internal/svc"
 	"go-zero-admin/internal/types"
 
@@ -27,6 +27,26 @@ func NewGetMenuTreeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetMe
 }
 
 func (l *GetMenuTreeLogic) GetMenuTree() (resp *types.MenuTreeResp, err error) {
-	
-	return
+
+	menus, err := getUserMenus(l.ctx, l.svcCtx, false)
+	if err != nil {
+		return nil, err
+	}
+
+	menuTree := common.BuildMenuTree(menus, 0)
+
+	return &types.MenuTreeResp{List: menuTree}, nil
+}
+
+func (l *GetMenuTreeLogic) isAdmin(roleIds []int64) bool {
+	for _, roleId := range roleIds {
+		role, err := l.svcCtx.SysRoleModel.FindOneByRoleId(l.ctx, roleId)
+		if err != nil || role == nil || role.Status != 1 {
+			continue
+		}
+		if role.Code == "admin" {
+			return true
+		}
+	}
+	return false
 }

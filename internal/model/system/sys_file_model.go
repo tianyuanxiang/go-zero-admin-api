@@ -24,7 +24,7 @@ type (
 // NewSysFileModel returns a model for the database table.
 func NewSysFileModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts ...cache.Option) SysFileModel {
 	return &customSysFileModel{
-		defaultSysFileModel: newSysFileModel(conn, c, opts...),
+		defaultSysFileModel: newSysFileModel(conn),
 		db:                  db,
 	}
 }

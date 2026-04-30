@@ -30,7 +30,7 @@ type (
 // NewSysDictTypeModel returns a model for the database table.
 func NewSysDictTypeModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts ...cache.Option) SysDictTypeModel {
 	return &customSysDictTypeModel{
-		defaultSysDictTypeModel: newSysDictTypeModel(conn, c, opts...),
+		defaultSysDictTypeModel: newSysDictTypeModel(conn),
 		db:                      db,
 	}
 }

@@ -27,7 +27,7 @@ type (
 
 func NewSysUserRoleModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts ...cache.Option) SysUserRoleModel {
 	return &customSysUserRoleModel{
-		defaultSysUserRoleModel: newSysUserRoleModel(conn, c, opts...),
+		defaultSysUserRoleModel: newSysUserRoleModel(conn),
 		db:                      db,
 	}
 }

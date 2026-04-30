@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
 )
@@ -23,9 +21,6 @@ var (
 	sysDictTypeRows                = strings.Join(sysDictTypeFieldNames, ",")
 	sysDictTypeRowsExpectAutoSet   = strings.Join(stringx.Remove(sysDictTypeFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	sysDictTypeRowsWithPlaceHolder = strings.Join(stringx.Remove(sysDictTypeFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
-
-	cachePlatingSysDictTypeIdPrefix   = "cache:plating:sysDictType:id:"
-	cachePlatingSysDictTypeCodePrefix = "cache:plating:sysDictType:code:"
 )
 
 type (
@@ -38,7 +33,7 @@ type (
 	}
 
 	defaultSysDictTypeModel struct {
-		sqlc.CachedConn
+		conn  sqlx.SqlConn
 		table string
 	}
 
@@ -54,39 +49,27 @@ type (
 	}
 )
 
-func newSysDictTypeModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) *defaultSysDictTypeModel {
+func newSysDictTypeModel(conn sqlx.SqlConn) *defaultSysDictTypeModel {
 	return &defaultSysDictTypeModel{
-		CachedConn: sqlc.NewConn(conn, c, opts...),
-		table:      "`sys_dict_type`",
+		conn:  conn,
+		table: "`sys_dict_type`",
 	}
 }
 
 func (m *defaultSysDictTypeModel) Delete(ctx context.Context, id int64) error {
-	data, err := m.FindOne(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	platingSysDictTypeCodeKey := fmt.Sprintf("%s%v", cachePlatingSysDictTypeCodePrefix, data.Code)
-	platingSysDictTypeIdKey := fmt.Sprintf("%s%v", cachePlatingSysDictTypeIdPrefix, id)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, id)
-	}, platingSysDictTypeCodeKey, platingSysDictTypeIdKey)
+	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultSysDictTypeModel) FindOne(ctx context.Context, id int64) (*SysDictType, error) {
-	platingSysDictTypeIdKey := fmt.Sprintf("%s%v", cachePlatingSysDictTypeIdPrefix, id)
+	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysDictTypeRows, m.table)
 	var resp SysDictType
-	err := m.QueryRowCtx(ctx, &resp, platingSysDictTypeIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysDictTypeRows, m.table)
-		return conn.QueryRowCtx(ctx, v, query, id)
-	})
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -94,19 +77,13 @@ func (m *defaultSysDictTypeModel) FindOne(ctx context.Context, id int64) (*SysDi
 }
 
 func (m *defaultSysDictTypeModel) FindOneByCode(ctx context.Context, code string) (*SysDictType, error) {
-	platingSysDictTypeCodeKey := fmt.Sprintf("%s%v", cachePlatingSysDictTypeCodePrefix, code)
 	var resp SysDictType
-	err := m.QueryRowIndexCtx(ctx, &resp, platingSysDictTypeCodeKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `code` = ? limit 1", sysDictTypeRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, code); err != nil {
-			return nil, err
-		}
-		return resp.Id, nil
-	}, m.queryPrimary)
+	query := fmt.Sprintf("select %s from %s where `code` = ? limit 1", sysDictTypeRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, code)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -114,37 +91,15 @@ func (m *defaultSysDictTypeModel) FindOneByCode(ctx context.Context, code string
 }
 
 func (m *defaultSysDictTypeModel) Insert(ctx context.Context, data *SysDictType) (sql.Result, error) {
-	platingSysDictTypeCodeKey := fmt.Sprintf("%s%v", cachePlatingSysDictTypeCodePrefix, data.Code)
-	platingSysDictTypeIdKey := fmt.Sprintf("%s%v", cachePlatingSysDictTypeIdPrefix, data.Id)
-	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, sysDictTypeRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Name, data.Code, data.Status, data.Remark, data.DeletedAt)
-	}, platingSysDictTypeCodeKey, platingSysDictTypeIdKey)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, sysDictTypeRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Code, data.Status, data.Remark, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultSysDictTypeModel) Update(ctx context.Context, newData *SysDictType) error {
-	data, err := m.FindOne(ctx, newData.Id)
-	if err != nil {
-		return err
-	}
-
-	platingSysDictTypeCodeKey := fmt.Sprintf("%s%v", cachePlatingSysDictTypeCodePrefix, data.Code)
-	platingSysDictTypeIdKey := fmt.Sprintf("%s%v", cachePlatingSysDictTypeIdPrefix, data.Id)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysDictTypeRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.Name, newData.Code, newData.Status, newData.Remark, newData.DeletedAt, newData.Id)
-	}, platingSysDictTypeCodeKey, platingSysDictTypeIdKey)
+	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysDictTypeRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Name, newData.Code, newData.Status, newData.Remark, newData.DeletedAt, newData.Id)
 	return err
-}
-
-func (m *defaultSysDictTypeModel) formatPrimary(primary any) string {
-	return fmt.Sprintf("%s%v", cachePlatingSysDictTypeIdPrefix, primary)
-}
-
-func (m *defaultSysDictTypeModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", sysDictTypeRows, m.table)
-	return conn.QueryRowCtx(ctx, v, query, primary)
 }
 
 func (m *defaultSysDictTypeModel) tableName() string {

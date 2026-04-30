@@ -5,6 +5,7 @@ package user
 
 import (
 	"go-zero-admin/pkg/response"
+	"go-zero-admin/pkg/xerr"
 	"net/http"
 
 	"go-zero-admin/internal/logic/system/user"
@@ -25,7 +26,11 @@ func CreateUserHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := user.NewCreateUserLogic(r.Context(), svcCtx)
 		err := l.CreateUser(&req)
 		if err != nil {
-			response.FailWithMsg(w, r, err.Error())
+			if codeErr, ok := err.(*xerr.CodeError); ok {
+				response.Fail(w, r, codeErr.Code, codeErr.Msg)
+			} else {
+				response.FailInternal(w, r)
+			}
 		} else {
 			response.OK(w, r)
 		}

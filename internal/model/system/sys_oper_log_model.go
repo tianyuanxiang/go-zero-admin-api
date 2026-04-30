@@ -39,7 +39,7 @@ type (
 // NewSysOperLogModel returns a model for the database table.
 func NewSysOperLogModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts ...cache.Option) SysOperLogModel {
 	return &customSysOperLogModel{
-		defaultSysOperLogModel: newSysOperLogModel(conn, c, opts...),
+		defaultSysOperLogModel: newSysOperLogModel(conn),
 		db:                     db,
 	}
 }
