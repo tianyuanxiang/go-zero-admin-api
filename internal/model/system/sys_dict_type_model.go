@@ -17,8 +17,9 @@ type (
 	// and implement the added methods in customSysDictTypeModel.
 	SysDictTypeModel interface {
 		sysDictTypeModel
-		SoftDeleteDictType(ctx context.Context, dictTypeId int64) error
+		SoftDeleteDictTypeTrans(ctx context.Context, tx *gorm.DB, dictTypeId int64) error
 		List(ctx context.Context, page, pageSize int, keyword string) ([]*SysDictType, int64, error)
+		UpdateDictType(ctx context.Context, id int64, updates map[string]interface{}) error
 	}
 
 	customSysDictTypeModel struct {
@@ -57,11 +58,18 @@ func (m *customSysDictTypeModel) List(ctx context.Context, page, pageSize int, k
 	return dictTypes, total, nil
 }
 
-func (m *customSysDictTypeModel) SoftDeleteDictType(ctx context.Context, dictTypeId int64) error {
-	return m.db.WithContext(ctx).Table("sys_dict_type").
+func (m *customSysDictTypeModel) SoftDeleteDictTypeTrans(ctx context.Context, tx *gorm.DB, dictTypeId int64) error {
+	return tx.WithContext(ctx).Table("sys_dict_type").
 		Where("id = ?", dictTypeId).
 		Update("deleted_at", sql.NullTime{
 			Time:  time.Now(),
-			Valid: false,
+			Valid: true,
 		}).Error
+}
+
+func (m *customSysDictTypeModel) UpdateDictType(ctx context.Context, dictTypeId int64, updates map[string]interface{}) error {
+	result := m.db.WithContext(ctx).Table("sys_dict_type").
+		Where("id = ? AND deleted_at IS NULL", dictTypeId).
+		Updates(updates)
+	return result.Error
 }

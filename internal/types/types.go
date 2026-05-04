@@ -33,7 +33,7 @@ type DictDataItem struct {
 type DictTypeItem struct {
 	Id        int    `json:"id"`        // 字典类型ID
 	DictName  string `json:"dictName"`  // 字典名称
-	DictType  string `json:"dictType"`  // 字典类型编码
+	DictCode  string `json:"dictCode"`  // 字典类型编码
 	Remark    string `json:"remark"`    // 备注
 	Status    int    `json:"status"`    // 状态
 	CreatedAt string `json:"createdAt"` // 创建时间

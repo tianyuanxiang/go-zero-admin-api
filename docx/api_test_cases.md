@@ -351,7 +351,8 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 完整参数**
+**用例1: 完整参数**✅️
+
 ```json
 {
     "apiName": "测试接口-获取列表",
@@ -362,7 +363,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例2: 最小必填参数**
+**用例2: 最小必填参数**✅️
+
 ```json
 {
     "apiName": "测试接口-创建",
@@ -372,7 +374,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例3: 带路径参数的接口**
+**用例3: 带路径参数的接口**✅️
+
 ```json
 {
     "apiName": "测试接口-详情",
@@ -383,7 +386,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例4: 各种 HTTP 方法 -- PUT**
+**用例4: 各种 HTTP 方法 -- PUT✅️**
+
 ```json
 {
     "apiName": "测试接口-更新",
@@ -393,7 +397,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例5: 各种 HTTP 方法 -- DELETE**
+**用例5: 各种 HTTP 方法 -- DELETE✅️**
+
 ```json
 {
     "apiName": "测试接口-删除",
@@ -403,7 +408,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例6: 缺少接口路径**
+**用例6: 缺少接口路径✅️**
+
 ```json
 {
     "apiName": "缺路径接口",
@@ -412,7 +418,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例7: 缺少 HTTP 方法**
+**用例7: 缺少 HTTP 方法✅️**
+
 ```json
 {
     "apiName": "缺方法接口",
@@ -430,34 +437,39 @@ GET /api/system/api
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 默认分页**
+**用例1: 默认分页**✅️
+
 ```
 GET /api/system/api
 ```
 
-**用例2: 指定分页**
+**用例2: 指定分页**✅️
+
 ```
 GET /api/system/api?page=1&pageSize=5
 ```
 
-**用例3: 按关键词搜索**
+**用例3: 按关键词搜索**✅️
+
 ```
 GET /api/system/api?keyword=user
 ```
 
-**用例4: 按分组过滤**
+**用例4: 按分组过滤**✅️
+
 ```
 GET /api/system/api?group=system
 ```
 
-**用例5: 组合条件**
+**用例5: 组合条件**✅️
+
 ```
 GET /api/system/api?page=1&pageSize=10&keyword=list&group=system
 ```
 
 ---
 
-### 3.3 获取全部接口（不分页）
+### 3.3 获取全部接口（不分页）✅️
 
 ```
 GET /api/system/api/all
@@ -476,7 +488,8 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 更新全部字段**
+**用例1: 更新全部字段**✅️
+
 ```json
 // PUT /api/system/api/{接口id}
 {
@@ -488,7 +501,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例2: 只更新名称和备注**
+**用例2: 只更新名称和备注**✅️
+
 ```json
 // PUT /api/system/api/{接口id}
 {
@@ -500,7 +514,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例3: 更新不存在的接口**
+**用例3: 更新不存在的接口**✅️
+
 ```json
 // PUT /api/system/api/99999
 {
@@ -520,12 +535,14 @@ DELETE /api/system/api/:id
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 正常删除**
+**用例1: 正常删除**✅️
+
 ```
 DELETE /api/system/api/{之前创建的测试接口id}
 ```
 
-**用例2: 删除不存在的接口**
+**用例2: 删除不存在的接口**✅️
+
 ```
 DELETE /api/system/api/99999
 ```
@@ -546,48 +563,53 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 完整参数**
+**用例1: 完整参数**✅️
+
 ```json
 {
     "dictName": "测试字典类型",
-    "dictType": "test_dict_type",
+    "dictCode": "test_dict_type",
     "status": 1,
     "remark": "用于测试的字典类型"
 }
 ```
 
-**用例2: 最小必填参数**
+**用例2: 最小必填参数**✅️
+
 ```json
 {
     "dictName": "最简字典",
-    "dictType": "test_simple",
+    "dictCode": "test_simple",
     "status": 1
 }
 ```
 
-**用例3: 禁用状态**
+**用例3: 禁用状态**✅️
+
 ```json
 {
     "dictName": "禁用字典",
-    "dictType": "test_disabled",
+    "dictCode": "test_disabled",
     "status": 0,
     "remark": "创建时即禁用"
 }
 ```
 
-**用例4: 重复的 dictType**
+**用例4: 重复的 dictCode**✅️
+
 ```json
 {
     "dictName": "重复类型",
-    "dictType": "sys_user_status",
+    "dictCode": "sys_user_status",
     "status": 1
 }
 ```
 
-**用例5: 缺少 dictName**
+**用例5: 缺少 dictName✅️**
+
 ```json
 {
-    "dictType": "test_no_name",
+    "dictCode": "test_no_name",
     "status": 1
 }
 ```
@@ -601,22 +623,26 @@ GET /api/system/dict/type
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 默认分页**
+**用例1: 默认分页**✅️
+
 ```
 GET /api/system/dict/type
 ```
 
-**用例2: 指定分页**
+**用例2: 指定分页**✅️
+
 ```
 GET /api/system/dict/type?page=1&pageSize=5
 ```
 
-**用例3: 关键词搜索**
+**用例3: 关键词搜索**✅️
+
 ```
 GET /api/system/dict/type?keyword=用户
 ```
 
-**用例4: 组合条件**
+**用例4: 组合条件**✅️
+
 ```
 GET /api/system/dict/type?page=1&pageSize=10&keyword=状态
 ```
@@ -631,7 +657,8 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 完整参数**
+**用例1: 完整参数**✅️
+
 ```json
 {
     "dictTypeId": 1,
@@ -643,7 +670,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例2: 最小必填参数**
+**用例2: 最小必填参数**✅️
+
 ```json
 {
     "dictTypeId": 1,
@@ -653,7 +681,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例3: 不存在的字典类型ID**
+**用例3: 不存在的字典类型ID**✅️
+
 ```json
 {
     "dictTypeId": 99999,
@@ -663,7 +692,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例4: 禁用状态**
+**用例4: 禁用状态**✅️
+
 ```json
 {
     "dictTypeId": 1,
@@ -674,7 +704,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例5: 缺少 dictLabel**
+**用例5: 缺少 dictLabel**✅️
+
 ```json
 {
     "dictTypeId": 1,
@@ -692,17 +723,20 @@ GET /api/system/dict/data/:dictType
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 查询存在的字典类型**
+**用例1: 查询存在的字典类型**✅️
+
 ```
 GET /api/system/dict/data/sys_user_status
 ```
 
-**用例2: 查询不存在的字典类型**
+**用例2: 查询不存在的字典类型**✅️
+
 ```
 GET /api/system/dict/data/not_exist_type
 ```
 
-**用例3: 查询菜单类型字典**
+**用例3: 查询菜单类型字典**✅️
+
 ```
 GET /api/system/dict/data/sys_menu_type
 ```
@@ -717,43 +751,47 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 更新全部字段**
+**用例1: 更新全部字段**✅️
+
 ```json
 // PUT /api/system/dict/type/{字典类型id}
 {
     "dictName": "更新后字典名",
-    "dictType": "test_dict_type_updated",
+    "dictCode": "test_dict_type_updated",
     "status": 1,
     "remark": "更新后备注"
 }
 ```
 
-**用例2: 只更新名称**
+**用例2: 只更新名称**✅️
+
 ```json
 // PUT /api/system/dict/type/{字典类型id}
 {
     "dictName": "只改名称",
-    "dictType": "test_dict_type",
+    "dictCode": "test_dict_type",
     "status": 1
 }
 ```
 
-**用例3: 禁用字典类型**
+**用例3: 禁用字典类型**✅️
+
 ```json
 // PUT /api/system/dict/type/{字典类型id}
 {
     "dictName": "测试字典类型",
-    "dictType": "test_dict_type",
+    "dictCode": "test_dict_type",
     "status": 0
 }
 ```
 
-**用例4: 更新不存在的字典类型**
+**用例4: 更新不存在的字典类型**✅️
+
 ```json
 // PUT /api/system/dict/type/99999
 {
     "dictName": "不存在",
-    "dictType": "not_exist",
+    "dictCode": "not_exist",
     "status": 1
 }
 ```
@@ -768,7 +806,7 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 更新全部字段**
+**用例1: 更新全部字段**✅️
 
 ```json
 // PUT /api/system/dict/data/{字典数据id}
@@ -782,7 +820,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例2: 只更新标签**
+**用例2: 只更新标签**✅️
+
 ```json
 // PUT /api/system/dict/data/{字典数据id}
 {
@@ -793,7 +832,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例3: 更新不存在的字典数据**
+**用例3: 更新不存在的字典数据**✅️
+
 ```json
 // PUT /api/system/dict/data/99999
 {
@@ -813,12 +853,14 @@ DELETE /api/system/dict/data/:id
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 正常删除**
+**用例1: 正常删除**✅️
+
 ```
 DELETE /api/system/dict/data/{之前创建的字典数据id}
 ```
 
-**用例2: 删除不存在的字典数据**
+**用例2: 删除不存在的字典数据**✅️
+
 ```
 DELETE /api/system/dict/data/99999
 ```
@@ -832,17 +874,20 @@ DELETE /api/system/dict/type/:id
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 删除有字典数据关联的类型（测试级联行为）**
+**用例1: 删除有字典数据关联的类型（测试级联行为）**✅️
+
 ```
 DELETE /api/system/dict/type/1
 ```
 
-**用例2: 正常删除（无关联数据的类型）**
+**用例2: 正常删除（无关联数据的类型）**✅️
+
 ```
 DELETE /api/system/dict/type/{之前创建的字典类型id}
 ```
 
-**用例3: 删除不存在的字典类型**
+**用例3: 删除不存在的字典类型**✅️
+
 ```
 DELETE /api/system/dict/type/99999
 ```

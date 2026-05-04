@@ -83,7 +83,7 @@ func (m *customSysMenuModel) SoftDeleteTrans(ctx context.Context, tx *gorm.DB, i
 		Where("id = ?", id).
 		Update("deleted_at", sql.NullTime{
 			Time:  time.Now(),
-			Valid: false,
+			Valid: true,
 		}).Error
 }
 

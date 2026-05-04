@@ -30,7 +30,7 @@ func NewDeleteApiLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteA
 }
 
 func (l *DeleteApiLogic) DeleteApi(apiId int64) error {
-	_, err := l.svcCtx.SysApiModel.FindOne(l.ctx, apiId)
+	oldApi, err := l.svcCtx.SysApiModel.FindOne(l.ctx, apiId)
 	if err != nil {
 		if err == sqlx.ErrNotFound {
 			return xerr.NewCodeError(xerr.ErrNotFound)
@@ -38,7 +38,9 @@ func (l *DeleteApiLogic) DeleteApi(apiId int64) error {
 		l.Errorf("删除api时查询apiId[%d]是否存在失败:%v\n", apiId, err)
 		return err
 	}
-
+	if oldApi.DeletedAt.Valid {
+		return xerr.NewCodeError(xerr.ErrMenuNotFound)
+	}
 	roleIds, err := l.svcCtx.SysRoleApiModel.ListRoleIdsByApiId(l.ctx, apiId)
 	if err != nil {
 		l.Errorf("查询API[%d]关联角色失败：%v", apiId, err)

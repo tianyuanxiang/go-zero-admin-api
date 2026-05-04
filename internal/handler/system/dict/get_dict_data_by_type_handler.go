@@ -18,7 +18,7 @@ import (
 func GetDictDataByTypeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		idStr := pathvar.Vars(r)["id"]
+		idStr := pathvar.Vars(r)["dictType"]
 		dictTypeId, err := strconv.ParseInt(idStr, 10, 64)
 		if err != nil || dictTypeId <= 0 {
 			response.FailWithMsg(w, r, "字典类型ID格式错误")

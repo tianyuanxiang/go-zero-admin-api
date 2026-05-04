@@ -5,11 +5,12 @@ package dict
 
 import (
 	"context"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	systemmodel "go-zero-admin/internal/model/system"
 	"go-zero-admin/internal/svc"
 	"go-zero-admin/internal/types"
 	"go-zero-admin/pkg/xerr"
+
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,9 +30,9 @@ func NewCreateDictTypeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cr
 }
 
 func (l *CreateDictTypeLogic) CreateDictType(req *types.CreateDictTypeReq) error {
-	exist, err := l.svcCtx.SysDictTypeModel.FindOneByCode(l.ctx, req.DictType)
-	if err != nil && err != sqlx.ErrNotFound {
-		l.Errorf("查询字典类型编码[%s]失败：%v", req.DictType, err)
+	exist, err := l.svcCtx.SysDictTypeModel.FindOneByCode(l.ctx, req.DictCode)
+	if err != nil || err != sqlx.ErrNotFound {
+		l.Errorf("查询字典类型编码[%s]失败：%v", req.DictCode, err)
 		return xerr.NewCodeError(xerr.ErrInternal)
 	}
 	if exist != nil {
@@ -40,7 +41,7 @@ func (l *CreateDictTypeLogic) CreateDictType(req *types.CreateDictTypeReq) error
 
 	_, err = l.svcCtx.SysDictTypeModel.Insert(l.ctx, &systemmodel.SysDictType{
 		Name:   req.DictName,
-		Code:   req.DictType,
+		Code:   req.DictCode,
 		Status: int64(req.Status),
 		Remark: req.Remark,
 	})

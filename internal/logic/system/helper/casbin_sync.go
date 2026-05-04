@@ -14,6 +14,7 @@ import (
 // 该方法只记录错误日志，不返回错误（降级处理，不影响主流程）。
 func RebuildCasbinByRoleIds(ctx context.Context, svcCtx *svc.ServiceContext, roleIds []int64) {
 	if len(roleIds) == 0 {
+		logx.Info("roleIds is empty")
 		return
 	}
 

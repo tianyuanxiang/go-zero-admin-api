@@ -19,6 +19,7 @@ type (
 		sysApiModel
 		ListByIds(ctx context.Context, ids []int64) ([]SysApi, error)
 		List(ctx context.Context, page, pageSize int, group, keyword string) ([]*SysApi, int64, error)
+		UpdateApi(ctx context.Context, id int64, updates map[string]interface{}) error
 		SoftDeleteApiTrans(ctx context.Context, tx *gorm.DB, apiIds int64) error
 	}
 
@@ -46,7 +47,7 @@ func (m *customSysApiModel) List(ctx context.Context, page, pageSize int, group,
 	}
 
 	if group != "" {
-		db = db.Where("api_group like ?", group)
+		db = db.Where("api_group like ?", "%"+group+"%")
 	}
 
 	// 查询总数
@@ -67,7 +68,7 @@ func (m *customSysApiModel) List(ctx context.Context, page, pageSize int, group,
 func (m *customSysApiModel) ListByIds(ctx context.Context, ids []int64) ([]SysApi, error) {
 	var apis []SysApi
 
-	db := m.db.WithContext(ctx).Table("sys_apis").Where("deleted_at IS NULL")
+	db := m.db.WithContext(ctx).Table("sys_api").Where("deleted_at IS NULL")
 	if len(ids) > 0 {
 		db = db.Where("id in ?", ids)
 	}
@@ -79,10 +80,17 @@ func (m *customSysApiModel) ListByIds(ctx context.Context, ids []int64) ([]SysAp
 }
 
 func (m *customSysApiModel) SoftDeleteApiTrans(ctx context.Context, tx *gorm.DB, apiIds int64) error {
-	return tx.WithContext(ctx).Table("sys_apis").
+	return tx.WithContext(ctx).Table("sys_api").
 		Where("id = ?", apiIds).
 		Update("deleted_at", sql.NullTime{
 			Time:  time.Now(),
-			Valid: false,
+			Valid: true,
 		}).Error
+}
+
+func (m *customSysApiModel) UpdateApi(ctx context.Context, id int64, updates map[string]interface{}) error {
+	result := m.db.WithContext(ctx).Table("sys_api").
+		Where("id = ? AND deleted_at IS NULL", id).
+		Updates(updates)
+	return result.Error
 }

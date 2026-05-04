@@ -14,7 +14,7 @@ type CreateDictDataReq struct {
 
 type CreateDictTypeReq struct {
 	DictName string `json:"dictName" validate:"required"` // 字典名称
-	DictType string `json:"dictType" validate:"required"` // 字典类型（唯一编码，如：sys_user_status）
+	DictCode string `json:"dictCode"`                     // 字典类型（唯一编码，如：sys_user_status）
 	Remark   string `json:"remark,optional"`              // 备注
 	Status   int    `json:"status"`                       // 状态：1启用 0禁用
 }
@@ -36,19 +36,19 @@ type ListDictTypeResp struct {
 }
 
 type UpdateDictDataReq struct {
-	Id         int    `path:"id" validate:"required"`         // 字典数据ID
-	DictTypeId int    `json:"dictTypeId" validate:"required"` // 字典类型ID
-	DictLabel  string `json:"dictLabel" validate:"required"`  // 字典标签
-	DictValue  string `json:"dictValue" validate:"required"`  // 字典值
-	Sort       int    `json:"sort,optional"`                  // 排序
-	Remark     string `json:"remark,optional"`                // 备注
-	Status     int    `json:"status"`                         // 状态
+	Id         int     `path:"id" validate:"required"`         // 字典数据ID
+	DictTypeId int     `json:"dictTypeId" validate:"required"` // 字典类型ID
+	DictLabel  string  `json:"dictLabel" validate:"required"`  // 字典标签
+	DictValue  string  `json:"dictValue" validate:"required"`  // 字典值
+	Sort       *int    `json:"sort,optional"`                  // 排序
+	Remark     *string `json:"remark,optional"`                // 备注
+	Status     *int    `json:"status"`                         // 状态
 }
 
 type UpdateDictTypeReq struct {
-	Id       int    `path:"id" validate:"required"` // 字典类型ID
-	DictName string `json:"dictName"`               // 字典名称
-	DictType string `json:"dictType" `              // 字典类型（唯一编码，如：sys_user_status）
-	Remark   string `json:"remark,optional"`        // 备注
-	Status   int    `json:"status"`                 // 状态
+	Id       int     `path:"id" validate:"required"` // 字典类型ID
+	DictName *string `json:"dictName,optional"`      // 字典名称
+	DictCode *string `json:"dictCode,optional" `     // 字典类型（唯一编码，如：sys_user_status）
+	Remark   *string `json:"remark,optional"`        // 备注
+	Status   *int    `json:"status,optional"`        // 状态
 }

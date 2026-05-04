@@ -28,7 +28,7 @@ func NewListApiLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListApiLo
 }
 
 func (l *ListApiLogic) ListApi(req *types.ListApiReq) (resp *types.ListApiResp, err error) {
-	apis, count, err := l.svcCtx.SysApiModel.List(l.ctx, req.Page, req.PageSize, req.Keyword, req.Group)
+	apis, count, err := l.svcCtx.SysApiModel.List(l.ctx, req.Page, req.PageSize, req.Group, req.Keyword)
 	if err != nil {
 		l.Errorf("查询接口列表失败：%v", err)
 		return nil, xerr.NewCodeError(xerr.ErrInternal)

@@ -12,6 +12,7 @@ import (
 	"go-zero-admin/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type CreateDictDataLogic struct {
@@ -29,7 +30,23 @@ func NewCreateDictDataLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cr
 }
 
 func (l *CreateDictDataLogic) CreateDictData(req *types.CreateDictDataReq) error {
-	_, err := l.svcCtx.SysDictDataModel.Insert(l.ctx, &system.SysDictData{
+	// 创建数据之前先查是否有该字典类型
+	dictType, err := l.svcCtx.SysDictTypeModel.FindOne(l.ctx, int64(req.DictTypeId))
+	if err != nil {
+		if err == sqlx.ErrNotFound {
+			l.Errorf("创建字典数据时，字典类型[%d]不存在", req.DictTypeId)
+			return xerr.NewCodeError(xerr.ErrParamInvalid)
+		}
+		l.Errorf("查询字典类型[%d]失败：%v", req.DictTypeId, err)
+		return xerr.NewCodeError(xerr.ErrInternal)
+	}
+
+	if dictType.DeletedAt.Valid {
+		l.Errorf("创建字典数据时，字典类型[%d]已被删除", req.DictTypeId)
+		return xerr.NewCodeError(xerr.ErrNotFound)
+	}
+
+	_, err = l.svcCtx.SysDictDataModel.Insert(l.ctx, &system.SysDictData{
 		TypeId:    int64(req.DictTypeId),
 		Label:     req.DictLabel,
 		DictValue: req.DictValue,

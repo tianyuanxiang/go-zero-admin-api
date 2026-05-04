@@ -18,7 +18,8 @@ type (
 	SysDictDataModel interface {
 		sysDictDataModel
 		ListByDictTypeId(ctx context.Context, dictTypeId int64) ([]*SysDictData, int64, error)
-		SoftDeleteDictDataByDictTypeId(ctx context.Context, dictTypeId int64) error
+		UpdateDictData(ctx context.Context, dictTypeId int64, updates map[string]interface{}) error
+		SoftDeleteDictDataByDictTypeIdTrans(ctx context.Context, tx *gorm.DB, dictTypeId int64) error
 		SoftDeleteDictDataByDictDataId(ctx context.Context, dictDataId int64) error
 	}
 
@@ -42,7 +43,7 @@ func (m *customSysDictDataModel) ListByDictTypeId(ctx context.Context, dictTypeI
 		count    int64
 	)
 	db := m.db.WithContext(ctx).Table("sys_dict_data").
-		Where("dict_type_id = ?", dictTypeId).
+		Where("type_id = ?", dictTypeId).
 		Where("deleted_at is NULL")
 	// 查数量
 	if err := db.Count(&count).Error; err != nil {
@@ -57,12 +58,12 @@ func (m *customSysDictDataModel) ListByDictTypeId(ctx context.Context, dictTypeI
 
 }
 
-func (m *customSysDictDataModel) SoftDeleteDictDataByDictTypeId(ctx context.Context, dictTypeId int64) error {
-	return m.db.WithContext(ctx).Table("sys_dict_data").
+func (m *customSysDictDataModel) SoftDeleteDictDataByDictTypeIdTrans(ctx context.Context, tx *gorm.DB, dictTypeId int64) error {
+	return tx.WithContext(ctx).Table("sys_dict_data").
 		Where("type_id = ?", dictTypeId).
 		Update("deleted_at", sql.NullTime{
 			Time:  time.Now(),
-			Valid: false,
+			Valid: true,
 		}).Error
 }
 
@@ -71,6 +72,13 @@ func (m *customSysDictDataModel) SoftDeleteDictDataByDictDataId(ctx context.Cont
 		Where("id = ?", dictDataId).
 		Update("deleted_at", sql.NullTime{
 			Time:  time.Now(),
-			Valid: false,
+			Valid: true,
 		}).Error
+}
+
+func (m *customSysDictDataModel) UpdateDictData(ctx context.Context, dictDataId int64, updates map[string]interface{}) error {
+	result := m.db.WithContext(ctx).Table("sys_dict_data").
+		Where("id = ? AND deleted_at IS NULL", dictDataId).
+		Updates(updates)
+	return result.Error
 }

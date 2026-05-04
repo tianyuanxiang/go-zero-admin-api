@@ -9,6 +9,7 @@ import (
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"gorm.io/gorm"
 
 	"go-zero-admin/internal/svc"
 )
@@ -36,15 +37,23 @@ func (l *DeleteDictTypeLogic) DeleteDictType(dictTypeId int64) error {
 		l.Logger.Errorf("删除字典类型时查询dictTypeId[%d]是否存在 失败:%v\n", dictTypeId, err)
 		return err
 	}
-	// 先删除该类型下所有字典数据
-	if err = l.svcCtx.SysDictDataModel.SoftDeleteDictDataByDictTypeId(l.ctx, dictTypeId); err != nil {
-		l.Errorf("删除字典类型[%d]下字典数据失败：%v", dictTypeId, err)
-		return xerr.NewCodeError(xerr.ErrInternal)
-	}
-	// 再删除该类型
-	if err := l.svcCtx.SysDictTypeModel.SoftDeleteDictType(l.ctx, dictTypeId); err != nil {
-		l.Logger.Errorf("删除字典类型失败:%v\n", err)
+	// 开启事务
+	err = l.svcCtx.Orm.WithContext(l.ctx).Transaction(func(tx *gorm.DB) error {
+		// 先删除该类型下所有字典数据
+		if err = l.svcCtx.SysDictDataModel.SoftDeleteDictDataByDictTypeIdTrans(l.ctx, tx, dictTypeId); err != nil {
+			l.Errorf("删除字典类型[%d]下字典数据失败：%v", dictTypeId, err)
+			return xerr.NewCodeError(xerr.ErrInternal)
+		}
+		// 再删除该类型
+		if err := l.svcCtx.SysDictTypeModel.SoftDeleteDictTypeTrans(l.ctx, tx, dictTypeId); err != nil {
+			l.Logger.Errorf("删除字典类型失败:%v\n", err)
+			return err
+		}
 		return err
+	})
+	if err != nil {
+		l.Logger.Errorf("删除字典类型事务执行失败: %v", err)
+		return xerr.NewCodeError(xerr.ErrInternal)
 	}
 
 	return err

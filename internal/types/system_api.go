@@ -28,10 +28,10 @@ type ListApiResp struct {
 }
 
 type UpdateApiReq struct {
-	Id      int64  `path:"id"`      // 接口ID
-	ApiName string `json:"apiName"` // 接口名称
-	ApiPath string `json:"apiPath"`
-	Method  string `json:"method"`
-	Group   string `json:"group"`           // 接口分组
-	Remark  string `json:"remark,optional"` // 备注
+	Id      int64   `path:"id"`               // 接口ID
+	ApiName *string `json:"apiName,optional"` // 接口名称
+	ApiPath *string `json:"apiPath,optional"`
+	Method  *string `json:"method,optional"`
+	Group   *string `json:"group,optional"`  // 接口分组
+	Remark  *string `json:"remark,optional"` // 备注
 }

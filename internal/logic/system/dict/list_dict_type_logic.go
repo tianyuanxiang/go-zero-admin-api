@@ -39,7 +39,7 @@ func (l *ListDictTypeLogic) ListDictType(req *types.ListDictTypeReq) (resp *type
 		list = append(list, types.DictTypeItem{
 			Id:        int(dictType.Id),
 			DictName:  dictType.Name,
-			DictType:  dictType.Code,
+			DictCode:  dictType.Code,
 			Remark:    dictType.Remark,
 			Status:    int(dictType.Status),
 			CreatedAt: dictType.CreatedAt.Format("2006-01-02 15:04:05"),
