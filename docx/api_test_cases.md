@@ -908,7 +908,8 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 完整参数创建**
+**用例1: 完整参数创建✅️**
+
 ```json
 {
     "username": "testuser01",
@@ -923,7 +924,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例2: 最小必填参数**
+**用例2: 最小必填参数**✅️
+
 ```json
 {
     "username": "testuser02",
@@ -932,7 +934,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例3: 用户名重复**
+**用例3: 用户名重复**✅️
+
 ```json
 {
     "username": "admin",
@@ -941,7 +944,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例4: 不存在的角色ID**
+**用例4: 不存在的角色ID✅️**
+
 ```json
 {
     "username": "testuser03",
@@ -951,7 +955,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例5: 创建禁用状态用户**
+**用例5: 创建禁用状态用户**✅️
+
 ```json
 {
     "username": "testuser04",
@@ -961,7 +966,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例6: 缺少用户名**
+**用例6: 缺少用户名✅️**
+
 ```json
 {
     "password": "Test@12345",
@@ -969,7 +975,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例7: 缺少密码**
+**用例7: 缺少密码✅️**
+
 ```json
 {
     "username": "testuser05",
@@ -986,42 +993,50 @@ GET /api/system/user
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 默认分页**
+**用例1: 默认分页✅️**
+
 ```
 GET /api/system/user
 ```
 
-**用例2: 指定分页**
+**用例2: 指定分页**✅️
+
 ```
 GET /api/system/user?page=1&pageSize=5
 ```
 
-**用例3: 第二页**
+**用例3: 第二页**✅️
+
 ```
 GET /api/system/user?page=2&pageSize=5
 ```
 
-**用例4: 按关键词搜索**
+**用例4: 按关键词搜索✅️**
+
 ```
 GET /api/system/user?keyword=admin
 ```
 
-**用例5: 按状态筛选 -- 启用**
+**用例5: 按状态筛选 -- 启用**✅️
+
 ```
 GET /api/system/user?status=1
 ```
 
-**用例6: 按状态筛选 -- 禁用**
+**用例6: 按状态筛选 -- 禁用✅️**
+
 ```
 GET /api/system/user?status=0
 ```
 
-**用例7: 组合条件**
+**用例7: 组合条件**✅️
+
 ```
 GET /api/system/user?page=1&pageSize=10&keyword=test&status=1
 ```
 
-**用例8: 超大页码（无数据）**
+**用例8: 超大页码（无数据）**✅️
+
 ```
 GET /api/system/user?page=9999&pageSize=20
 ```
@@ -1035,12 +1050,14 @@ GET /api/system/user/:id
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 正常查询**
+**用例1: 正常查询**✅️
+
 ```
 GET /api/system/user/1
 ```
 
-**用例2: 不存在的用户**
+**用例2: 不存在的用户✅️**
+
 ```
 GET /api/system/user/99999
 ```
@@ -1055,7 +1072,8 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 更新全部字段**
+**用例1: 更新全部字段✅️**
+
 ```json
 // PUT /api/system/user/2
 {
@@ -1069,7 +1087,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例2: 只更新昵称**
+**用例2: 只更新昵称✅️**
+
 ```json
 // PUT /api/system/user/2
 {
@@ -1078,7 +1097,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例3: 禁用用户**
+**用例3: 禁用用户✅️**
+
 ```json
 // PUT /api/system/user/2
 {
@@ -1086,7 +1106,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例4: 更新角色关联**
+**用例4: 更新角色关联✅️**
+
 ```json
 // PUT /api/system/user/2
 {
@@ -1095,7 +1116,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例5: 清空角色**
+**用例5: 清空角色✅️**
+
 ```json
 // PUT /api/system/user/2
 {
@@ -1104,7 +1126,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例6: 更新不存在的用户**
+**用例6: 更新不存在的用户**✅️
+
 ```json
 // PUT /api/system/user/99999
 {
@@ -1123,7 +1146,8 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 正常重置**
+**用例1: 正常重置**✅️
+
 ```json
 // POST /api/system/user/2/reset-password
 {
@@ -1131,7 +1155,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例2: 重置不存在用户的密码**
+**用例2: 重置不存在用户的密码**✅️
+
 ```json
 // POST /api/system/user/99999/reset-password
 {
@@ -1139,7 +1164,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例3: 空密码**
+**用例3: 空密码✅️**
+
 ```json
 // POST /api/system/user/2/reset-password
 {
@@ -1156,17 +1182,20 @@ DELETE /api/system/user/:id
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 正常删除**
+**用例1: 正常删除**✅️
+
 ```
 DELETE /api/system/user/{之前创建的testuser的id}
 ```
 
-**用例2: 删除不存在的用户**
+**用例2: 删除不存在的用户✅️**
+
 ```
 DELETE /api/system/user/99999
 ```
 
-**用例3: 删除管理员用户（应被禁止或特殊处理）**
+**用例3: 删除管理员用户（应被禁止或特殊处理）**✅️
+
 ```
 DELETE /api/system/user/1
 ```
@@ -1188,12 +1217,14 @@ GET /api/system/role/:id
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 正常查询**
+**用例1: 正常查询**✅️
+
 ```
 GET /api/system/role/1
 ```
 
-**用例2: 不存在的角色**
+**用例2: 不存在的角色**✅️
+
 ```
 GET /api/system/role/99999
 ```
@@ -1207,7 +1238,7 @@ GET /api/system/role/all
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 正常获取** -- 直接请求，用于下拉选择
+**用例1: 正常获取** -- 直接请求，用于下拉选择✅️
 
 ---
 
@@ -1219,7 +1250,8 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
-**用例1: 同时分配菜单和接口**
+**用例1: 同时分配菜单和接口**✅️
+
 ```json
 // PUT /api/system/role/2/permissions
 {
@@ -1228,7 +1260,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例2: 只分配菜单**
+**用例2: 只分配菜单**✅️
+
 ```json
 // PUT /api/system/role/2/permissions
 {
@@ -1236,7 +1269,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例3: 只分配接口**
+**用例3: 只分配接口**✅️
+
 ```json
 // PUT /api/system/role/2/permissions
 {
@@ -1244,7 +1278,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例4: 清空所有权限**
+**用例4: 清空所有权限**✅️
+
 ```json
 // PUT /api/system/role/2/permissions
 {
@@ -1253,7 +1288,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例5: 包含不存在的菜单ID**
+**用例5: 包含不存在的菜单ID**✅️
+
 ```json
 // PUT /api/system/role/2/permissions
 {
@@ -1262,7 +1298,8 @@ Authorization: Bearer {accessToken}
 }
 ```
 
-**用例6: 只分配叶子菜单（测试祖先链补全）**
+**用例6: 只分配叶子菜单（测试祖先链补全）✅️**
+
 ```json
 // PUT /api/system/role/2/permissions
 {
@@ -1272,7 +1309,8 @@ Authorization: Bearer {accessToken}
 ```
 > 预期: 后端自动补全父菜单 2（用户管理）和祖父菜单 1（系统管理）
 
-**用例7: 分配跨模块菜单（测试祖先链补全）**
+**用例7: 分配跨模块菜单（测试祖先链补全）✅️**
+
 ```json
 // PUT /api/system/role/2/permissions
 {
@@ -1282,7 +1320,7 @@ Authorization: Bearer {accessToken}
 ```
 > 预期: 自动补全父菜单 1（系统管理）和 7（日志管理）
 
-**用例8: 更新不存在的角色**
+**用例8: 更新不存在的角色**✅️
 ```json
 // PUT /api/system/role/99999/permissions
 {

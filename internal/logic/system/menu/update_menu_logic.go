@@ -125,7 +125,7 @@ func (l *UpdateMenuLogic) UpdateMenu(req *types.UpdateMenuReq) error {
 
 	if err != nil {
 		l.Logger.Errorf("更新菜单事务执行失败: %v", err)
-		return xerr.NewCodeError(xerr.ErrInternal)
+		return err
 	}
 
 	return nil

@@ -7,6 +7,7 @@ import (
 	"context"
 	"go-zero-admin/internal/common"
 	"go-zero-admin/internal/middleware"
+	"go-zero-admin/pkg/constants"
 	"go-zero-admin/pkg/encrypt"
 	"go-zero-admin/pkg/jwtx"
 	"go-zero-admin/pkg/xerr"
@@ -97,7 +98,7 @@ func (l *LoginLogic) Login(req *types.LoginReq, r *http.Request) (resp *types.Lo
 		if roleErr != nil || role == nil || role.Status != 1 {
 			continue
 		}
-		if role.Code == "admin" {
+		if role.Code == constants.RoleCodeAdmin {
 			isAdmin = true
 			roleCodes = append(roleCodes, role.Code)
 			break

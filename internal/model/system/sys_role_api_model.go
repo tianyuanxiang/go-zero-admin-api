@@ -41,10 +41,15 @@ func (m *customSysRoleApiModel) InsertRoleApiTrans(ctx context.Context, tx *gorm
 	return result.RowsAffected, result.Error
 }
 
+// DeleteRoleApiByRoleIdTrans 按 role_id 清空指定角色的所有 API 绑定。
+// 用于"重新分配角色权限"场景，先清后插，实现全量替换语义
 func (m *customSysRoleApiModel) DeleteRoleApiByRoleIdTrans(ctx context.Context, tx *gorm.DB, roleId int64) error {
 	return tx.WithContext(ctx).Table("sys_role_api").Where("role_id = ?", roleId).Delete(&SysRoleApi{}).Error
 }
 
+// DeleteRoleApiByApiIdTrans 按 api_id 清空指定接口的所有角色绑定。
+// 用于"删除 API 接口"场景的级联清理，避免悬挂引用。
+// 注意：本方法不用于角色权限重置，错用会导致角色旧绑定未清空触发 uk_role_api 冲突。
 func (m *customSysRoleApiModel) DeleteRoleApiByApiIdTrans(ctx context.Context, tx *gorm.DB, apiId int64) error {
 	return tx.WithContext(ctx).Table("sys_role_api").Where("api_id = ?", apiId).Delete(&SysRoleApi{}).Error
 }

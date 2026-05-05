@@ -33,6 +33,7 @@ func NewUpdateRolePermissionsLogic(ctx context.Context, svcCtx *svc.ServiceConte
 }
 
 // 更新角色权限
+
 func (l *UpdateRolePermissionsLogic) UpdateRolePermissions(req *types.UpdateRolePermissionsReq) error {
 	// 检查角色是否存在
 	existRole, err := l.svcCtx.SysRoleModel.FindOne(l.ctx, req.Id)
@@ -42,6 +43,11 @@ func (l *UpdateRolePermissionsLogic) UpdateRolePermissions(req *types.UpdateRole
 		}
 		l.Errorf("查询角色[%d]失败：%v", req.Id, err)
 		return xerr.NewCodeError(xerr.ErrInternal)
+	}
+
+	if existRole.DeletedAt.Valid {
+		l.Errorf("角色[%s]已删除", existRole.Code)
+		return xerr.NewCodeError(xerr.ErrParamInvalid)
 	}
 
 	// 1.获取接口信息 && 确认接口数量完整
@@ -57,6 +63,18 @@ func (l *UpdateRolePermissionsLogic) UpdateRolePermissions(req *types.UpdateRole
 		}
 	}
 
+	// 1.5 校验菜单存在性（含未软删除），与 ApiIds 校验风格保持一致
+	if len(req.MenuIds) > 0 {
+		menus, err := l.svcCtx.SysMenuModel.ListByIds(l.ctx, req.MenuIds)
+		if err != nil {
+			l.Logger.Errorf("查询菜单信息失败：%v", err)
+			return xerr.NewCodeError(xerr.ErrInternal)
+		}
+		if len(menus) != len(req.MenuIds) {
+			return xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "部分菜单信息不存在或已删除")
+		}
+	}
+	
 	// 2.开启事务
 	err = l.svcCtx.Orm.WithContext(l.ctx).Transaction(func(tx *gorm.DB) error {
 		// 2.1 先删后插：更新关联菜单
@@ -84,7 +102,7 @@ func (l *UpdateRolePermissionsLogic) UpdateRolePermissions(req *types.UpdateRole
 		}
 
 		// 2.2 先删后插：更新关联接口
-		if err := l.svcCtx.SysRoleApiModel.DeleteRoleApiByApiIdTrans(l.ctx, tx, req.Id); err != nil {
+		if err := l.svcCtx.SysRoleApiModel.DeleteRoleApiByRoleIdTrans(l.ctx, tx, req.Id); err != nil {
 			l.Logger.Errorf("删除角色[%d]旧接口关联失败：%v", req.Id, err)
 			return xerr.NewCodeError(xerr.ErrInternal)
 		}
@@ -106,7 +124,7 @@ func (l *UpdateRolePermissionsLogic) UpdateRolePermissions(req *types.UpdateRole
 
 	if err != nil {
 		l.Logger.Errorf("更新角色权限事务执行失败: %v", err)
-		return xerr.NewCodeError(xerr.ErrInternal)
+		return err
 	}
 
 	// 3.同步Casbin策略（事务成功后执行）

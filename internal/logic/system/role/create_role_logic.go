@@ -55,6 +55,26 @@ func (l *CreateRoleLogic) CreateRole(req *types.CreateRoleReq) error {
 		}
 	}
 
+	if len(req.MenuIds) > 0 {
+		menus, err := l.svcCtx.SysMenuModel.ListByIds(l.ctx, req.MenuIds)
+		if err != nil {
+			l.Logger.Errorf("查询菜单信息失败：%v", err)
+			return xerr.NewCodeError(xerr.ErrInternal)
+		}
+		if len(menus) != len(req.MenuIds) {
+			return xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "部分菜单信息不存在或已删除")
+		}
+	}
+
+	menus, err := l.svcCtx.SysMenuModel.ListByIds(l.ctx, req.MenuIds)
+	if err != nil {
+		l.Logger.Errorf("查询菜单信息失败：%v", err)
+		return xerr.NewCodeError(xerr.ErrInternal)
+	}
+	if len(menus) != len(req.MenuIds) {
+		return xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "部分菜单信息不存在或已删除")
+	}
+
 	// 开启事务
 	err = l.svcCtx.Orm.WithContext(l.ctx).Transaction(func(tx *gorm.DB) error {
 		// 1.插入角色

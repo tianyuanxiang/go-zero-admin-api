@@ -6,6 +6,7 @@ import (
 	"go-zero-admin/internal/middleware"
 	systemmodel "go-zero-admin/internal/model/system"
 	"go-zero-admin/internal/svc"
+	"go-zero-admin/pkg/constants"
 	"go-zero-admin/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -68,7 +69,7 @@ func isAdmin(ctx context.Context, svcCtx *svc.ServiceContext, roleIds []int64) b
 		if err != nil || role == nil || role.Status != 1 {
 			continue
 		}
-		if role.Code == "admin" {
+		if role.Code == constants.RoleCodeAdmin {
 			return true
 		}
 	}
@@ -99,7 +100,7 @@ func (l *UpdateMenuLogic) cascadeVisible(parentId, visible int64, tx *gorm.DB) e
 		l.Errorf("查询全部菜单失败：%v", err)
 		return err
 	}
-	
+
 	menuIds := collectChildren(menus, parentId)
 	if len(menuIds) == 0 {
 		return nil

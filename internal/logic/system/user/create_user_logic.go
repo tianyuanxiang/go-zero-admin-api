@@ -86,6 +86,16 @@ func (l *CreateUserLogic) CreateUser(req *types.CreateUserReq) error {
 		}
 		// 2. 分配初始角色
 		if len(req.RoleIds) > 0 {
+			// 确认角色真实存在
+			roles, err := l.svcCtx.SysRoleModel.FindByIds(l.ctx, req.RoleIds)
+			if err != nil {
+				l.Errorf("确认角色真实存在时查询角色信息失败：%v", err)
+				return xerr.NewCodeError(xerr.ErrInternal)
+			}
+			if len(roles) <= 0 {
+				l.Infof("关联的角色ID错误, %s", req.RoleIds)
+				return xerr.NewCodeError(xerr.ErrRoleNotFound)
+			}
 			if err = l.svcCtx.SysUserRoleModel.AssignRolesTrans(l.ctx, tx, userId, req.RoleIds); err != nil {
 				l.Errorf("为新用户[%d]分配角色失败：%v", userId, err)
 				// 角色分配失败不影响用户创建成功，仅记录日志
@@ -95,7 +105,7 @@ func (l *CreateUserLogic) CreateUser(req *types.CreateUserReq) error {
 	})
 	if err != nil {
 		l.Logger.Errorf("创建用户事务执行失败: %v", err)
-		return xerr.NewCodeError(xerr.ErrInternal)
+		return err
 	}
 	return nil
 }

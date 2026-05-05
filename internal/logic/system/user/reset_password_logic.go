@@ -30,43 +30,68 @@ func NewResetPasswordLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Res
 	}
 }
 
+// ResetPassword 管理员重置指定用户的密码。
+//
+// 业务流程：
+//  1. 校验操作者已登录（从 ctx 提取 operatorId）
+//  2. 校验目标用户ID合法性
+//  3. 拒绝通过该接口修改操作者自身密码（必须走"修改密码"接口验证旧密码）
+//  4. 校验目标用户存在且未被软删除
+//  5. 对新密码进行 bcrypt 加密
+//  6. 更新目标用户的密码字段
+//  7. 记录高敏操作审计日志
+//
+// 参数：
+//   - req : 重置密码请求体，Id 来自路径，NewPassword 来自请求体
+//
+// 返回：
+//   - error : 业务错误
+
 func (l *ResetPasswordLogic) ResetPassword(req *types.ResetPasswordReq) error {
 	// 获取当前用户userId
-	userId := middleware.GetUserIdFromCtx(l.ctx)
-	if userId == 0 {
+	operatorId := middleware.GetUserIdFromCtx(l.ctx)
+	if operatorId == 0 {
 		return xerr.NewCodeError(xerr.ErrUnauthorized)
 	}
-	if req.Id == userId {
-		l.Logger.Infof("该接口禁止修改自己的密码!")
+	// 目标用户ID合法性兜底校验（handler 已校验，此处防御性兜底）
+	if req.Id <= 0 {
+		return xerr.NewCodeError(xerr.ErrParamInvalid)
+	}
+	// 禁止通过本接口重置自己的密码，必须引导至"修改密码"功能（需校验旧密码）
+	if req.Id == operatorId {
+		l.Infof("操作者[%d]尝试通过重置接口修改自身密码，已拦截", operatorId)
 		return xerr.NewCodeErrorMsg(xerr.ErrForbidden, "请通过修改密码功能操作")
 	}
 
-	userInfo, err := l.svcCtx.SysUserModel.FindOne(l.ctx, userId)
+	// 查询目标用户是否存在且未被软删除
+	targetUser, err := l.svcCtx.SysUserModel.FindOne(l.ctx, req.Id)
 	if err != nil {
 		if err == sqlx.ErrNotFound {
 			return xerr.NewCodeError(xerr.ErrUserNotFound)
 		}
-		l.Logger.Errorf("查询用户[%d]失败：%v", userId, err)
+		l.Errorf("操作者[%d]查询目标用户[%d]失败：%v", operatorId, req.Id, err)
 		return xerr.NewCodeError(xerr.ErrInternal)
 	}
-
-	if userInfo.DeletedAt.Valid {
-		l.Logger.Infof("禁止修改已删除用户的密码!")
+	if targetUser.DeletedAt.Valid {
+		l.Infof("操作者[%d]尝试重置已删除用户[%d]的密码，已拦截", operatorId, req.Id)
 		return xerr.NewCodeErrorMsg(xerr.ErrForbidden, "该用户已被删除")
 	}
 
-	// 密码加密
+	// 新密码 bcrypt 加密
 	hashedPassword, err := encrypt.HashPassword(req.NewPassword)
 	if err != nil {
-		l.Logger.Errorf("新密码加密失败：%v", err)
+		l.Errorf("新密码加密失败：%v", err)
 		return xerr.NewCodeError(xerr.ErrInternal)
 	}
 
-	// 修改密码
-	if err := l.svcCtx.SysUserModel.UpdatePassword(l.ctx, userId, hashedPassword); err != nil {
-		l.Logger.Errorf("修改密码失败：%v", err)
+	// 更新目标用户的密码（注意此处必须用 req.Id，不能用 operatorId）
+	if err := l.svcCtx.SysUserModel.UpdatePassword(l.ctx, req.Id, hashedPassword); err != nil {
+		l.Errorf("操作者[%d]重置用户[%d]密码失败：%v", operatorId, req.Id, err)
 		return xerr.NewCodeError(xerr.ErrInternal)
 	}
+
+	// 高敏操作审计日志（密码重置必须留痕，便于事后追溯）
+	l.Infof("操作者[%d]成功重置用户[%d]的密码", operatorId, req.Id)
 
 	return nil
 }

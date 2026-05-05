@@ -19,7 +19,7 @@ type ListUserReq struct {
 	Page     int    `form:"page,default=1"`      // 页码
 	PageSize int    `form:"pageSize,default=20"` // 每页数量
 	Keyword  string `form:"keyword,optional"`    // 关键词（用户名/昵称）
-	Status   int    `form:"status,optional"`     // 状态过滤：1启用 0禁用
+	Status   *int   `form:"status,optional"`     // 状态过滤：1启用 0禁用
 }
 
 type ListUserResp struct {
@@ -34,12 +34,13 @@ type ResetPasswordReq struct {
 
 type UpdateUserReq struct {
 	Id       int64   `path:"id"`                // 用户ID
-	Nickname string  `json:"nickname,optional"` // 昵称
-	Email    string  `json:"email,optional"`    // 邮箱
-	Phone    string  `json:"phone,optional"`    // 手机号
-	Status   int     `json:"status"`            // 状态：1启用 0禁用
-	Avatar   string  `json:"avatar,optional"`
-	Remark   string  `json:"remark,optional"`  // 头像URL
+	Username string  `json:"username,optional"` // 用户名，唯一
+	Nickname *string `json:"nickname,optional"` // 昵称
+	Email    *string `json:"email,optional"`    // 邮箱
+	Phone    *string `json:"phone,optional"`    // 手机号
+	Status   *int    `json:"status"`            // 状态：1启用 0禁用
+	Avatar   *string `json:"avatar,optional"`
+	Remark   *string `json:"remark,optional"`  // 头像URL
 	RoleIds  []int64 `json:"roleIds,optional"` // 角色ID列表
 }
 

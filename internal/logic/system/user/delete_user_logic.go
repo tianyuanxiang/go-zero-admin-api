@@ -5,12 +5,10 @@ package user
 
 import (
 	"context"
-	"database/sql"
-	"go-zero-admin/pkg/xerr"
-	"time"
-
-	systemmodel "go-zero-admin/internal/model/system"
+	"go-zero-admin/internal/middleware"
 	"go-zero-admin/internal/svc"
+	"go-zero-admin/pkg/constants"
+	"go-zero-admin/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -32,8 +30,17 @@ func NewDeleteUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delete
 }
 
 func (l *DeleteUserLogic) DeleteUser(userId int64) error {
+
+	operatorId := middleware.GetUserIdFromCtx(l.ctx)
+	if operatorId == 0 {
+		return xerr.NewCodeError(xerr.ErrUnauthorized)
+	}
+	if userId == operatorId {
+		return xerr.NewCodeErrorMsg(xerr.ErrForbidden, "禁止删除自己")
+	}
+
 	// 检查用户是否存在
-	_, err := l.svcCtx.SysUserModel.FindOne(l.ctx, userId)
+	targetUser, err := l.svcCtx.SysUserModel.FindOne(l.ctx, userId)
 	if err != nil {
 		if err == sqlx.ErrNotFound {
 			return xerr.NewCodeError(xerr.ErrUserNotFound)
@@ -42,29 +49,47 @@ func (l *DeleteUserLogic) DeleteUser(userId int64) error {
 		return xerr.NewCodeError(xerr.ErrInternal)
 	}
 
+	if targetUser.DeletedAt.Valid {
+		l.Errorf("用户[%d]已删除", userId)
+		return xerr.NewCodeError(xerr.ErrParamInvalid)
+	}
+
+	// 超级管理员禁止删除：查询目标用户绑定的角色，命中 Code=="admin" 即拒绝
+	roleIds, err := l.svcCtx.SysUserRoleModel.GetRoleIdsByUserId(l.ctx, userId)
+	if err != nil {
+		l.Errorf("查询用户[%d]的角色列表失败：%v", userId, err)
+		return xerr.NewCodeError(xerr.ErrInternal)
+	}
+	if len(roleIds) > 0 {
+		roles, err := l.svcCtx.SysRoleModel.FindByIds(l.ctx, roleIds)
+		if err != nil {
+			l.Errorf("查询用户[%d]的角色明细失败：%v", userId, err)
+			return xerr.NewCodeError(xerr.ErrInternal)
+		}
+		for _, role := range roles {
+			if role.Code == constants.RoleCodeAdmin {
+				l.Infof("尝试删除超级管理员[%d]，已拦截", userId)
+				return xerr.NewCodeErrorMsg(xerr.ErrForbidden, "超级管理员禁止删除")
+			}
+		}
+	}
 	// 软删除用户（设置deleted_at）
 	// 开启事务
 	err = l.svcCtx.Orm.WithContext(l.ctx).Transaction(func(tx *gorm.DB) error {
-		if err = l.svcCtx.SysUserModel.Update(l.ctx, &systemmodel.SysUser{
-			Id: userId,
-			DeletedAt: sql.NullTime{
-				Time:  time.Now(),
-				Valid: true,
-			},
-		}); err != nil {
+		if err = l.svcCtx.SysUserModel.DeleteUserTrans(l.ctx, tx, userId); err != nil {
 			l.Errorf("软删除用户[%d]失败：%v", userId, err)
 			return xerr.NewCodeError(xerr.ErrInternal)
 		}
 		// 清除用户的角色关联
-		if err = l.svcCtx.SysUserRoleModel.Delete(l.ctx, userId); err != nil {
+		if err = l.svcCtx.SysUserRoleModel.DeleteByUserIdTrans(l.ctx, tx, userId); err != nil {
 			l.Errorf("清除用户[%d]角色关联失败：%v", userId, err)
-			// 不影响主流程，记录日志即可
+			return xerr.NewCodeError(xerr.ErrInternal)
 		}
 		return nil
 	})
 	if err != nil {
 		l.Logger.Errorf("删除用户事务执行失败: %v", err)
-		return xerr.NewCodeError(xerr.ErrInternal)
+		return err
 	}
 
 	return nil

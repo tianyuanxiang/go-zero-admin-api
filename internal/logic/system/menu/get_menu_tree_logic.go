@@ -8,6 +8,7 @@ import (
 	"go-zero-admin/internal/common"
 	"go-zero-admin/internal/svc"
 	"go-zero-admin/internal/types"
+	"go-zero-admin/pkg/constants"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -44,7 +45,7 @@ func (l *GetMenuTreeLogic) isAdmin(roleIds []int64) bool {
 		if err != nil || role == nil || role.Status != 1 {
 			continue
 		}
-		if role.Code == "admin" {
+		if role.Code == constants.RoleCodeAdmin {
 			return true
 		}
 	}

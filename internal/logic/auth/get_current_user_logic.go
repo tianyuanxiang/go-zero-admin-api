@@ -8,6 +8,7 @@ import (
 	"go-zero-admin/internal/common"
 	"go-zero-admin/internal/middleware"
 	systemmodel "go-zero-admin/internal/model/system"
+	"go-zero-admin/pkg/constants"
 	"go-zero-admin/pkg/xerr"
 
 	"go-zero-admin/internal/svc"
@@ -62,7 +63,7 @@ func (l *GetCurrentUserLogic) GetCurrentUser() (resp *types.UserInfoResp, err er
 		if roleErr != nil || role == nil || role.Status != 1 {
 			continue
 		}
-		if role.Code == "admin" {
+		if role.Code == constants.RoleCodeAdmin {
 			isAdmin = true
 			roleCodes = append(roleCodes, role.Code)
 			break

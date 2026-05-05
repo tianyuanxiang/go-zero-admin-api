@@ -2,7 +2,9 @@ package system
 
 import (
 	"context"
+	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -14,9 +16,11 @@ var _ SysUserModel = (*customSysUserModel)(nil)
 type (
 	SysUserModel interface {
 		sysUserModel
-		List(ctx context.Context, page, pageSize int, keyword string, status int) ([]*SysUser, int64, error)
+		List(ctx context.Context, page, pageSize int, keyword string, status *int) ([]*SysUser, int64, error)
 		UpdatePassword(ctx context.Context, id int64, password string) error
+		UpdateTrans(ctx context.Context, tx *gorm.DB, id int64, updates map[string]interface{}) error
 		InsertUserTrans(ctx context.Context, tx *gorm.DB, user *SysUser) (int64, error)
+		DeleteUserTrans(ctx context.Context, tx *gorm.DB, userId int64) error
 	}
 
 	customSysUserModel struct {
@@ -30,6 +34,16 @@ func NewSysUserModel(conn sqlx.SqlConn, c cache.CacheConf, db *gorm.DB, opts ...
 		defaultSysUserModel: newSysUserModel(conn),
 		db:                  db,
 	}
+}
+
+func (m *customSysUserModel) UpdateTrans(ctx context.Context, tx *gorm.DB, id int64, updates map[string]interface{}) error {
+	// 无字段需更新时直接返回，避免触发空 SET 语句
+	if len(updates) == 0 {
+		return nil
+	}
+	return tx.WithContext(ctx).Table("sys_user").
+		Where("id = ? AND deleted_at IS NULL", id).
+		Updates(updates).Error
 }
 
 // UpdatePassword 仅更新用户密码字段。
@@ -66,7 +80,7 @@ func (m *customSysUserModel) InsertUserTrans(ctx context.Context, tx *gorm.DB, u
 	return user.Id, result.Error
 }
 
-func (m *customSysUserModel) List(ctx context.Context, page, pageSize int, keyword string, status int) ([]*SysUser, int64, error) {
+func (m *customSysUserModel) List(ctx context.Context, page, pageSize int, keyword string, status *int) ([]*SysUser, int64, error) {
 	// 构建查询条件
 	db := m.db.WithContext(ctx).Table("sys_user").Where("deleted_at IS NULL")
 	// 关键词模糊检索
@@ -74,7 +88,7 @@ func (m *customSysUserModel) List(ctx context.Context, page, pageSize int, keywo
 		db = db.Where("username LIKE ? OR nickname LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
 	}
 	// 状态筛选
-	if status != 0 {
+	if status != nil {
 		db = db.Where("status = ?", status)
 	}
 	// 查询总数
@@ -89,4 +103,13 @@ func (m *customSysUserModel) List(ctx context.Context, page, pageSize int, keywo
 		return nil, 0, err
 	}
 	return users, total, nil
+}
+
+func (m *customSysUserModel) DeleteUserTrans(ctx context.Context, tx *gorm.DB, userId int64) error {
+	return tx.WithContext(ctx).Table("sys_user").
+		Where("id = ?", userId).
+		Update("deleted_at", sql.NullTime{
+			Time:  time.Now(),
+			Valid: true,
+		}).Error
 }

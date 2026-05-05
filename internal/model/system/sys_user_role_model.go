@@ -17,6 +17,7 @@ type (
 		GetRoleIdsByUserIds(ctx context.Context, userIds []int64) ([]SysUserRole, error)
 		AssignRolesTrans(ctx context.Context, tx *gorm.DB, userId int64, roleIds []int64) error
 		DeleteUserRoleTrans(ctx context.Context, tx *gorm.DB, roleId int64) error
+		DeleteByUserIdTrans(ctx context.Context, tx *gorm.DB, userId int64) error
 	}
 
 	customSysUserRoleModel struct {
@@ -82,4 +83,8 @@ func (m *customSysUserRoleModel) AssignRolesTrans(ctx context.Context, tx *gorm.
 
 func (m *customSysUserRoleModel) DeleteUserRoleTrans(ctx context.Context, tx *gorm.DB, roleId int64) error {
 	return tx.WithContext(ctx).Table("sys_user_role").Where("role_id = ?", roleId).Delete(&SysUserRole{}).Error
+}
+
+func (m *customSysUserRoleModel) DeleteByUserIdTrans(ctx context.Context, tx *gorm.DB, userId int64) error {
+	return tx.WithContext(ctx).Table("sys_user_role").Where("user_id = ?", userId).Delete(&SysUserRole{}).Error
 }
